@@ -1,5 +1,11 @@
 # Matern 3/2
 
+ker <- function(x, l = 1, sigf = 1) {
+  r <- as.matrix(dist(x))
+  k <- sigf * (1 + (sqrt(3) * r / l)) * exp(- sqrt(3) * r / l)
+  return(k)
+}
+
 covf <- function(x, l = 1, sigf = 1) {
   r <- as.matrix(dist(x))
   k <- sigf * (1 + (sqrt(3) * r / l)) * exp(- sqrt(3) * r / l)

@@ -1,46 +1,42 @@
 
 # Generate data fromm linear population
-gen1 <- function(n = 100, maxt = 20, theta = rep(1,3)) {
-  a <- 2
-  b <- .1
+gen <- function(n = 100, maxt = 20, theta = rep(1,3)) {
+  a1 <- 2
+  b1 <- .1
+  a2 <- 2.5
+  b2 <- 1
+  c2 <- 0.06
+  train1 <- data.frame()
+  train2 <- data.frame()
   #n number of functions in the sample data
   n.time <- sample(1:maxt, size=n, replace=T) 
-  train <- data.frame()
   
   for(i in 1:n) {
     id <- rep(i, n.time[i])
     x <- sort(runif(n.time[i], 0 , 100))
-    mu <- a + b * x
+    mu <- a1 + b1 * x
     gt <- mvrnorm(1, rep(0, n.time[i]), ker(x, l = theta[1], sigf = theta[2])) 
-    y <- mu + gt #+ rnorm(n.time[i], 0, theta[3])
-    train <- rbind(train, cbind(x, y, id))
+    y <- mu + gt + rnorm(n.time[i], 0, theta[3])
+    train1 <- rbind(train1, cbind(x, y, id))
   }
-  z <- rep(1, dim(train)[1])
-  train <- cbind(train,z)
-  return(train)
-}
-
-
-# Generate data from periodic population
-
-gen2 <- function(n = 100, maxt = 20, theta = rep(1,3)) {
-  a <- 2.5
-  b <- 1
-  c <- 0.06
-  #n number of functions in the sample data
+  
+  z <- rep('train1', dim(train1)[1])
+  train1 <- cbind(train1,z)
+  
   n.time <- sample(1:maxt, size=n, replace=T) 
-  train <- data.frame()
   
   for(i in 1:n) {
-    id <- rep(i, n.time[i])
+    id <- rep(i, n.time[i]) + n
     x <- sort(runif(n.time[i], 0 , 100))
-    mu <- a + b * sin(x/5) + c * x
+    mu <- a2 + b2 * sin(x/5) + c2 * x
     gt <- mvrnorm(1, rep(0, n.time[i]), ker(x, l = theta[1], sigf = theta[2])) 
     y <- mu  + gt + rnorm(n.time[i], 0, theta[3])
-    train <- rbind(train, cbind(x, y, id))
+    train2 <- rbind(train2, cbind(x, y, id))
   }
-  z <- rep(2, dim(train)[1])
-  train <- cbind(train,z)
+  z <- rep('train2', dim(train2)[1])
+  train2 <- cbind(train2,z)
+  
+  train <- rbind(train1, train2)
   return(train)
 }
 
@@ -72,7 +68,7 @@ Hyper <- function(trainx, trainy, repnum, N) {
   }
   
   hyp <- optim(par=rep(1, 5), fn = marlik, method = 'BFGS',
-               control=list(maxit = 10000, ndeps = rep(.00001, 5)))
+               control=list(maxit = 10000))
   print(hyp)
   return(hyp$par^2)
   

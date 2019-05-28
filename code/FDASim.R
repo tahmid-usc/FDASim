@@ -3,21 +3,22 @@ library(MASS)
 library(kernlab)
 library(mvtnorm)
 library(Matrix)
+library(optimx)
 
 source('code/RBF.R')
+source('code/matern52.R')
 source('code/functions.R')
+source('code/multistart.R')
 
 #Generate training data----
 
-train1 <- gen1(n=100, theta = c(1000,.5,.1), maxt = 5)
-train2 <- gen2(n=100, theta = c(1000,.1,.1), maxt = 5)
+train <- gen(n=50, theta = c(1000,.5,.2), maxt = 10)
+
+train <- split(train, train$z)
 
 # Test data
 
-test1 <- gen1(n=50, theta = c(1000,.5,.1), maxt = 5)
-test2 <- gen2(n=50, theta = c(1000,.1,.1), maxt = 5)
-test2$id <- test2$id + 100
-test <- rbind(test1, test2)
+test <- gen(n=50, theta = c(1000,.5,.2), maxt = 10)
 
 # Visualize ------
 
@@ -60,12 +61,13 @@ train <- list(train1 = train1, train2 = train2)
 
 test$x <- (test$x - mx) / stdx
 test$y <- (test$y - my) / stdy
+
 #---------------------------------
 
 fet <- lapply(train, feature)
 
 # Plot fitted
-ageseq <- seq(-3,3, length = 100)
+ageseq <- seq(0,100, length = 100)
 
 plot(fet$train1$trainx, fet$train1$trainy, pch = 16, col = 1, 
      cex=.5, xlab='Age', ylab='Spinal bone mineral density')
@@ -93,7 +95,7 @@ for (i in unique(test$id)) {
 }
 
 y.pred <- log.prob[,1] > log.prob[,2]
-pred <- ifelse(y.pred == 1, '1', '2')
+pred <- ifelse(y.pred == 1, 'train1', 'train2')
 table(pred, y)
 err <- mean(pred != y)
 err

@@ -1,5 +1,11 @@
 #laplace kernel
 
+ker <- function(x, l, sigf) {
+  rbf <- laplacedot(sigma = 1/l)
+  return(sigf * kernelMatrix(rbf, x = x))
+}
+
+
 Jmat <- function(m) {
   return(matrix(rep(1, m^2), ncol = m))
 }

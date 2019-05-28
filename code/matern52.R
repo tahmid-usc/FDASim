@@ -1,5 +1,11 @@
 # Matern 5/2
 
+ker <- function(x, l = 1, sigf = 1) {
+  r <- as.matrix(dist(x))
+  k <- sigf * (1 + (sqrt(5) * r / l) + ((5 * r^2) / (3 * l^2))) * exp(- sqrt(5) * r / l)
+  return(k)
+}
+
 covf <- function(x, l = 1, sigf = 1) {
   r <- as.matrix(dist(x))
   k <- sigf * (1 + (sqrt(5) * r / l) + ((5 * r^2) / (3 * l^2))) * exp(- sqrt(5) * r / l)
