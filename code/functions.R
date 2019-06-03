@@ -1,6 +1,6 @@
 
 # Generate data fromm linear population
-gen <- function(n = 100, maxt = 20, theta = rep(1,3)) {
+gen <- function(n = 100, maxt = 20, theta1 = rep(1,3), theta2 = rep(1,3)) {
   a1 <- 2
   b1 <- .1
   a2 <- 2.5
@@ -15,8 +15,8 @@ gen <- function(n = 100, maxt = 20, theta = rep(1,3)) {
     id <- rep(i, n.time[i])
     x <- sort(runif(n.time[i], 0 , 100))
     mu <- a1 + b1 * x
-    gt <- mvrnorm(1, rep(0, n.time[i]), ker(x, l = theta[1], sigf = theta[2])) 
-    y <- mu + gt + rnorm(n.time[i], 0, theta[3])
+    gt <- mvrnorm(1, rep(0, n.time[i]), ker(x, l = theta1[1], sigf = theta1[2])) 
+    y <- mu + gt + rnorm(n.time[i], 0, theta1[3])
     train1 <- rbind(train1, cbind(x, y, id))
   }
   
@@ -29,8 +29,8 @@ gen <- function(n = 100, maxt = 20, theta = rep(1,3)) {
     id <- rep(i, n.time[i]) + n
     x <- sort(runif(n.time[i], 0 , 100))
     mu <- a2 + b2 * sin(x/5) + c2 * x
-    gt <- mvrnorm(1, rep(0, n.time[i]), ker(x, l = theta[1], sigf = theta[2])) 
-    y <- mu  + gt + rnorm(n.time[i], 0, theta[3])
+    gt <- mvrnorm(1, rep(0, n.time[i]), ker(x, l = theta2[1], sigf = theta2[2])) 
+    y <- mu  + gt + rnorm(n.time[i], 0, theta2[3])
     train2 <- rbind(train2, cbind(x, y, id))
   }
   z <- rep('train2', dim(train2)[1])
