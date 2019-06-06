@@ -1,0 +1,54 @@
+Comapare with fpca
+
+RBF
+
+> #FPCA
+> mean((mu1 - pca1$mu)^2)
+[1] 0.06633137
+> mean((mu2 - pca2$mu)^2)
+[1] 0.1248256
+> # GP
+> mean((mu1 - mu1.gp)^2)
+[1] 0.01300263
+> mean((mu2 - mu2.gp)^2)
+[1] 0.07222116
+
+Laplace
+
+#FPCA
+> mean((mu1 - pca1$mu)^2)
+[1] 0.05379905
+> mean((mu2 - pca2$mu)^2)
+[1] 0.1603128
+> # GP
+> mean((mu1 - mu1.gp)^2)
+[1] 0.01291886
+> mean((mu2 - mu2.gp)^2)
+[1] 0.02615548
+
+
+Matern52
+
+> #FPCA
+> mean((mu1 - pca1$mu)^2)
+[1] 0.1369637
+> mean((mu2 - pca2$mu)^2)
+[1] 0.1894599
+> # GP
+> mean((mu1 - mu1.gp)^2)
+[1] 0.04024764
+> mean((mu2 - mu2.gp)^2)
+[1] 0.0168394
+
+
+Matern32
+
+> mean((mu1 - pca1$mu)^2)
+[1] 0.0699394
+> mean((mu2 - pca2$mu)^2)
+[1] 0.1117805
+> # GP
+> mean((mu1 - mu1.gp)^2)
+[1] 0.03265969
+> mean((mu2 - mu2.gp)^2)
+[1] 0.004069335

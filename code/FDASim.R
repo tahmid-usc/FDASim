@@ -14,7 +14,7 @@ source('code/multistart.R')
 
 # Generate training data----
 
-train <- gen(n = 30, theta1 = c(1000,1,.1), theta2 = c(1000,1,.1), maxt = 5)
+train <- gen(n = 50, theta1 = c(1000,1,.1), theta2 = c(1000,1,.1), maxt = 5)
 
 train <- split(train, train$z)
 
