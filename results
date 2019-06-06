@@ -52,3 +52,94 @@ Matern32
 [1] 0.03265969
 > mean((mu2 - mu2.gp)^2)
 [1] 0.004069335
+
+Data from RBF
+
+Matern52
+
+> #FPCA
+> mean((mu1 - pca1$mu)^2)
+[1] 0.008983812
+> mean((mu2 - pca2$mu)^2)
+[1] 0.01422956
+> # GP
+> mean((mu1 - mu1.gp)^2)
+[1] 0.005232657
+> mean((mu2 - mu2.gp)^2)
+[1] 0.002176404
+
+Laplace
+
+> #FPCA
+> mean((mu1 - pca1$mu)^2)
+[1] 0.008983812
+> mean((mu2 - pca2$mu)^2)
+[1] 0.01422956
+> # GP
+> mean((mu1 - mu1.gp)^2)
+[1] 0.004004467
+> mean((mu2 - mu2.gp)^2)
+[1] 0.004139484
+
+Matern32
+
+> #FPCA
+> mean((mu1 - pca1$mu)^2)
+[1] 0.008983812
+> mean((mu2 - pca2$mu)^2)
+[1] 0.01422956
+> # GP
+> mean((mu1 - mu1.gp)^2)
+[1] 0.004635373
+> mean((mu2 - mu2.gp)^2)
+[1] 0.002318473
+> 
+
+Data from Laplace
+
+RBF
+
+> #FPCA
+> mean((mu1 - pca1$mu)^2)
+[1] 0.01301324
+> mean((mu2 - pca2$mu)^2)
+[1] 0.009656612
+> # GP
+> mean((mu1 - mu1.gp)^2)
+[1] 0.001284491
+> mean((mu2 - mu2.gp)^2)
+[1] 0.001032868
+
+Matern52
+
+ #FPCA
+> mean((mu1 - pca1$mu)^2)
+[1] 0.004923417
+> mean((mu2 - pca2$mu)^2)
+[1] 0.01510516
+> # GP
+> mean((mu1 - mu1.gp)^2)
+[1] 9.799599e-05
+> mean((mu2 - mu2.gp)^2)
+[1] 0.0008920364
+> 
+
+Matern32
+
+> mean((mu1 - pca1$mu)^2)
+[1] 0.004923417
+> mean((mu2 - pca2$mu)^2)
+[1] 0.01510516
+> # GP
+> mean((mu1 - mu1.gp)^2)
+[1] 0.0001596437
+> mean((mu2 - mu2.gp)^2)
+[1] 0.00106838
+> 
+
+
+# 500 simulation RBF
+
+> apply(ase, 2, mean)
+   fpca.lin    fpca.per      gp.lin      gp.per 
+0.009375013 0.019226125 0.004187028 0.006161812 
