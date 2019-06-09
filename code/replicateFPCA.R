@@ -18,10 +18,10 @@ source('code/functions.R')
 
 ASE <- function() {
   # Generate training data----
-  
+  source('code/RBF.R')
   train <- gen(n = 50, theta1 = c(1000,1,.1), theta2 = c(1000,1,.1), maxt = 5)
   train <- split(train, train$z)
-  
+  source('code/matern32.R')
   # standardize
   
   my <- mean(c(train$train1$y, train$train2$y))
@@ -76,4 +76,4 @@ for (i in 1:500) {
 
 apply(ase, 2, mean)
 
-save(ase, file = 'ase.Rdata')
+save(ase, file = 'asem32.Rdata')

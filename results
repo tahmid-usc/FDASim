@@ -140,6 +140,26 @@ Matern32
 
 # 500 simulation RBF
 
+RBF
+
 > apply(ase, 2, mean)
    fpca.lin    fpca.per      gp.lin      gp.per 
 0.009375013 0.019226125 0.004187028 0.006161812 
+
+Laplace
+
+> apply(ase, 2, mean)
+   fpca.lin    fpca.per      gp.lin      gp.per 
+0.009202535 0.019426798 0.007334385 0.010194335 
+
+Matern52
+
+> apply(ase, 2, mean)
+   fpca.lin    fpca.per      gp.lin      gp.per 
+0.009254133 0.019076934 0.003563233 0.007325940 
+
+Matern 32
+
+> apply(ase, 2, mean)
+   fpca.lin    fpca.per      gp.lin      gp.per 
+0.009362433 0.018832722 0.004060531 0.006729014 
