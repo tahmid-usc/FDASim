@@ -68,12 +68,13 @@ fet <- lapply(train, feature)
 
 # Plot fitted
 ageseq <- seq(-3,3, length = 100)
+ageseq <- seq(min(train$train1$x, train$train2$x), max(train$train1$x, train$train2$x), length.out = 100)
 
-plot(fet$train1$trainx, fet$train1$trainy, pch = 16, col = 1, 
+plot(train$train1$x, train$train1$y, pch = 16, col = 1, 
      cex=.5, xlab='x', ylab='y')
 lines(ageseq, 2 + .1 * ageseq, type = 'l', lwd = 2, col = 1, lty = 2)
 lines(ageseq, 2.5 + 1 * sin(ageseq/5) + .06 * ageseq, type = 'l', lwd = 2, col = 2, , lty = 2)
-points(fet$train2$trainx, fet$train2$trainy, pch = 16, col = 2, cex=.5)
+points(train$train2$x, train$train2$y, pch = 16, col = 2, cex=.5)
 lines(ageseq, gpsmooth(ageseq, fet$train1), type='l', lwd = 2, col = 1)
 lines(ageseq, gpsmooth(ageseq, fet$train2), type='l', lwd = 2, col = 2)
 

@@ -163,3 +163,12 @@ Matern 32
 > apply(ase, 2, mean)
    fpca.lin    fpca.per      gp.lin      gp.per 
 0.009362433 0.018832722 0.004060531 0.006729014 
+
+
+# 7/11/19 Overall simulation
+
+apply(ase, 2, mean)
+   fpca.lin    fpca.per     rbf.lin     lap.lin     m52.lin     m32.lin     rbf.per 
+0.009905306 0.019132324 0.006021357 0.007983890 0.004527302 0.004921217 0.007068155 
+    lap.per     m52.per     m32.per 
+0.009986740 0.006821455 0.007431395 

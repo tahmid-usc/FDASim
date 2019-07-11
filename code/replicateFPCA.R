@@ -21,7 +21,7 @@ ASE <- function() {
   source('code/RBF.R')
   train <- gen(n = 50, theta1 = c(1000,1,.1), theta2 = c(1000,1,.1), maxt = 5)
   train <- split(train, train$z)
-  source('code/matern32.R')
+  
   # standardize
   
   my <- mean(c(train$train1$y, train$train2$y))
@@ -38,11 +38,7 @@ ASE <- function() {
   
   pca1 <- FPCA(dt1$Ly, dt1$Lt, optns = list(dataType = 'Sparse'))
   pca2 <- FPCA(dt2$Ly, dt2$Lt, optns = list(dataType = 'Sparse'))
-  
-  # Fit GP
-  
-  fet <- lapply(train, feature)
-  
+
   # Compare
   
   a1 <- 2
@@ -56,17 +52,43 @@ ASE <- function() {
   mu2 <- a2 + b2 * sin(pca2$workGrid/5) + c2 * pca2$workGrid 
   mu2 <- (mu2 - my) / stdy
   
-  mu1.gp <- gpsmooth(pca1$workGrid, fet$train1)
-  mu2.gp <- gpsmooth(pca2$workGrid, fet$train2)
-  
   #FPCA
   fpca.lin <- mean((mu1 - pca1$mu)^2)
   fpca.per <- mean((mu2 - pca2$mu)^2)
-  # GP
-  gp.lin <- mean((mu1 - mu1.gp)^2)
-  gp.per <- mean((mu2 - mu2.gp)^2)
   
-  return(cbind(fpca.lin, fpca.per, gp.lin, gp.per))
+  
+#  mu1.gp <- gpsmooth(pca1$workGrid, fet$train1)
+#  mu2.gp <- gpsmooth(pca2$workGrid, fet$train2)
+  
+  #GP
+  
+  source('code/RBF.R')
+  fet.rbf <- lapply(train, feature)
+  rbf.lin <- mean((mu1 - gpsmooth(pca1$workGrid, fet.rbf$train1))^2)
+  rbf.per <- mean((mu2 - gpsmooth(pca2$workGrid, fet.rbf$train2))^2)
+  
+  source('code/laplace.R')
+  fet.lap <- lapply(train, feature)
+  lap.lin <- mean((mu1 - gpsmooth(pca1$workGrid, fet.lap$train1))^2)
+  lap.per <- mean((mu2 - gpsmooth(pca2$workGrid, fet.lap$train2))^2)
+  
+  source('code/matern52.R')
+  fet.m52 <- lapply(train, feature)
+  m52.lin <- mean((mu1 - gpsmooth(pca1$workGrid, fet.m52$train1))^2)
+  m52.per <- mean((mu2 - gpsmooth(pca2$workGrid, fet.m52$train2))^2)
+  
+  source('code/matern32.R')
+  fet.m32 <- lapply(train, feature)
+  m32.lin <- mean((mu1 - gpsmooth(pca1$workGrid, fet.m32$train1))^2)
+  m32.per <- mean((mu2 - gpsmooth(pca2$workGrid, fet.m32$train2))^2)
+  
+
+  # GP
+  #gp.lin <- mean((mu1 - mu1.gp)^2)
+  #gp.per <- mean((mu2 - mu2.gp)^2)
+  
+  return(cbind(fpca.lin, fpca.per, rbf.lin, lap.lin, m52.lin, m32.lin, 
+               rbf.per, lap.per, m52.per, m32.per))
 }
 
 ase <- c()
@@ -76,4 +98,4 @@ for (i in 1:500) {
 
 apply(ase, 2, mean)
 
-save(ase, file = 'asem32.Rdata')
+save(ase, file = 'ase.Rdata')
