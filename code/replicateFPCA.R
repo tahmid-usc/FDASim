@@ -99,3 +99,12 @@ for (i in 1:500) {
 apply(ase, 2, mean)
 
 save(ase, file = 'ase.Rdata')
+
+boxplot(ase[,c(1,3:6)], pch = 16, cex = .5, horizontal = T, 
+        names = c('FPCA', 'RBF', 'Laplace', 'Matern 5/2', 'Matern 3/2'), xlab = 'Mean ASE', 
+        main = 'Linear')
+
+
+boxplot(ase[,-c(1,3:6)], pch = 16, cex = .5, horizontal = T, 
+        names = c('FPCA', 'RBF', 'Laplace', 'Matern 5/2', 'Matern 3/2'), xlab = 'Mean ASE', 
+        main = 'Periodic')
