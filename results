@@ -182,3 +182,12 @@ apply(ase, 2, mean)
     m52.per     m32.per 
 0.008610590 0.009487256 
 > 
+
+
+# mater 52 error
+
+apply(ase, 2, mean)
+   fpca.lin    fpca.per     rbf.lin     lap.lin     m52.lin     m32.lin     rbf.per 
+0.009803891 0.019043043 0.005165645 0.007394262 0.004221865 0.004403464 0.007006532 
+    lap.per     m52.per     m32.per 
+0.008934436 0.006894851 0.007219270 

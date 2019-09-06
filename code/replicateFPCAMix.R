@@ -62,22 +62,22 @@ ASE <- function() {
   
   #GP
   
-  source('code/RBF.R')
+  source('code/rbfmatern52.R')
   fet.rbf <- lapply(train, feature)
   rbf.lin <- mean((mu1 - gpsmooth(pca1$workGrid, fet.rbf$train1))^2)
   rbf.per <- mean((mu2 - gpsmooth(pca2$workGrid, fet.rbf$train2))^2)
   
-  source('code/laplace2.R')
+  source('code/lapmatern52.R')
   fet.lap <- lapply(train, feature)
   lap.lin <- mean((mu1 - gpsmooth(pca1$workGrid, fet.lap$train1))^2)
   lap.per <- mean((mu2 - gpsmooth(pca2$workGrid, fet.lap$train2))^2)
   
-  source('code/matern522.R')
+  source('code/matern52.R')
   fet.m52 <- lapply(train, feature)
   m52.lin <- mean((mu1 - gpsmooth(pca1$workGrid, fet.m52$train1))^2)
   m52.per <- mean((mu2 - gpsmooth(pca2$workGrid, fet.m52$train2))^2)
   
-  source('code/matern322.R')
+  source('code/matern32matern52.R')
   fet.m32 <- lapply(train, feature)
   m32.lin <- mean((mu1 - gpsmooth(pca1$workGrid, fet.m32$train1))^2)
   m32.per <- mean((mu2 - gpsmooth(pca2$workGrid, fet.m32$train2))^2)
