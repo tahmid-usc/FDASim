@@ -32,7 +32,7 @@ dt1 <- MakeFPCAInputs(IDs = train$train1$id, train$train1$x, train$train1$y, sor
 dt2 <- MakeFPCAInputs(IDs = train$train2$id, train$train2$x, train$train2$y, sort = FALSE)
 
 
-pca1 <- FPCA(dt1$Ly, dt1$Lt, optns = list(dataType = 'Sparse'))
+pca1 <- FPCA(dt1$Ly, dt1$Lt, optns = list(dataType = 'Sparse', usergrid= T))
 pca2 <- FPCA(dt2$Ly, dt2$Lt, optns = list(dataType = 'Sparse'))
 
 # Fit GP
@@ -47,7 +47,19 @@ a2 <- 2.5
 b2 <- 1
 c2 <- 0.06
 
-mu1 <- a1 + b1 * pca1$workGrid
+fx1 <- function(t) { 
+  a1 <- 2
+  b1 <- .1
+  return(((a1 + b1 * t)-my)/stdy) 
+}
+
+fx2 <- function(t) { 
+  a2 <- 2.5
+  b2 <- 1
+  c2 <- 0.06
+  return(((a2 + b2 * sin(t/5) + c2 * t)-my)/stdy) 
+}
+
 mu1 <- (mu1 - my) / stdy
 mu2 <- a2 + b2 * sin(pca2$workGrid/5) + c2 * pca2$workGrid 
 mu2 <- (mu2 - my) / stdy
@@ -61,6 +73,22 @@ mean((mu2 - pca2$mu)^2)
 # GP
 mean((mu1 - mu1.gp)^2)
 mean((mu2 - mu2.gp)^2)
+
+# MISE ---------------------------
+
+residfunc <- function(t, fp, gp, fx) {
+  ferr <- (fpcamu(fp, t) - fx(t))^2
+  gperr <- (gpsmooth(t, gp) - fx(t))^2
+  return(list(fp = ferr, gp = gperr))
+}
+
+xt <- 0:100
+residfunc(xt, fp = pca1, gp = fet$train1, fx = fx1)
+baal <- function(t) {residfunc(t, fp = pca1, gp = fet$train1, fx = fx1)$fp}
+integrate(baal, 0 , 100, subdivisions = 10000)
+
+
+#-------------------------
 
 plot(pca1$workGrid, mu1, type = 'l', lwd = 4, main = 'Mean function estimation (Linear)',
      xlab = 'x', ylab = 'y')

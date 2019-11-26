@@ -105,3 +105,20 @@ fit.gp <- function(train, testx, testy) {
   return(logprob)
 }
 
+
+
+# Local linear smoother (estimate of FPCA mean)
+fpcamu <- function(fpca, t) {
+  
+  to <- order(t)
+  t <- sort(t)
+  xt <- unlist(fpca$inputData$Lt)
+  yt <- unlist(fpca$inputData$Ly)
+  dt <- data.frame(xt, yt)
+  dt <- dt[order(dt$xt),]
+  
+  mu <- Lwls1D(bw = fpca$bwMu, kernel_type = 'gauss', xin = dt$xt, 
+               yin = dt$yt, xout = t)
+  mu <- mu[to]
+  return(mu)
+}
