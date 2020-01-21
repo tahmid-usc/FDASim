@@ -1,3 +1,32 @@
+# Jan 2020
+
+MISE for periodic
+
+apply(ase, 2, mean)
+  mise.fpca     mise.gp 
+0.010778291 0.002648244
+
+MISE for linear
+
+apply(ase, 2, mean)
+  mise.fpca     mise.gp 
+0.004858857 0.001958225 
+
+#-----------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 Comapare with fpca
 
 RBF

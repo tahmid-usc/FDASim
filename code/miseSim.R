@@ -48,6 +48,10 @@ for (i in 1:500) {
 
 apply(ase, 2, mean)
 
+boxplot(ase[,1], ase[,2], horizontal = T, names = c('FPCA', 'GP'), cex.main = 1, 
+        cex.lab = 1.5,
+        main = 'Mean integrated square error (MISE) for estimating linear mean function')
+
 save(ase, file = 'ase_per.Rdata')
 
 boxplot(ase[,c(1,3:6)], pch = 16, cex = .5, horizontal = T, 
