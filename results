@@ -12,6 +12,24 @@ apply(ase, 2, mean)
   mise.fpca     mise.gp 
 0.004858857 0.001958225 
 
+
+#Laplace
+
+> apply(ase, 2, mean)
+  mise.fpca     mise.gp 
+0.003852301 0.003393576 
+
+#Matern 5/2
+
+> apply(ase, 2, mean)
+  mise.fpca     mise.gp 
+0.010649566 0.004162021 
+
+
+mater 32
+
+  mise.fpca     mise.gp 
+0.010760379 0.004673848
 #-----------------------
 
 

@@ -89,3 +89,5 @@ legend('bottomright', c('z = 0', 'z = 1'), col = 1:2, lty = 1, bty = 'n', cex = 
 
 
 
+
+
