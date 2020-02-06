@@ -3,8 +3,8 @@
 
 # Mean function 
 muf <- function(x) {
-  1 * sin(x * 10) + 1 * x
-  #2 +  x
+  #1 * sin(x * 10) + 1 * x
+  2 +  x
 }
 
 # data frame
