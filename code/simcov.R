@@ -52,8 +52,9 @@ mu0 <- gpsmooth(x = t, z = 0, fet)
 mu1 <- gpsmooth(x = t, z = 1, fet)
 
 
-plot(fdata[fdata$z ==0,]$x, fdata[fdata$z ==0,]$y, col = 3, main = 'Fitting GP model with covariate', xlab = 'Time', ylab = 'Y', cex.lab = 1.5, cex.axis = 1.5)
-points(fdata[fdata$z ==1,]$x, fdata[fdata$z ==1,]$y, col = 4)
+plot(fdata[fdata$z ==0,]$x, fdata[fdata$z ==0,]$y, col = 3, pch = 16,
+     main = 'Fitting GP model with binary covariate', xlab = 'Time', ylab = 'Y', cex.lab = 1.5, cex.axis = 1.5)
+points(fdata[fdata$z ==1,]$x, fdata[fdata$z ==1,]$y, pch = 16, col = 4)
 lines(t, mu0, lwd = 3, col = 3)
 lines(t, mu1,, lwd = 3, col = 4)
 legend('bottomright', c('z = 0', 'z = 1'), col = 3:4, bty = 'n', lwd = 3, cex = 1.5)

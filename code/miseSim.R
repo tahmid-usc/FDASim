@@ -8,6 +8,7 @@ library(kernlab)
 library(mvtnorm)
 library(Matrix)
 library(optimx)
+library(dplyr)
 
 source('code/RBF.R')
 #source('code/laplace.R')
@@ -29,6 +30,10 @@ ASE <- function() {
   fpca <- FPCA(fpca.dt$Ly, fpca.dt$Lt, optns = list(dataType = 'Sparse'))
 
   #GP
+  
+  #source('code/laplace.R')
+  #source('code/matern52.R')
+  source('code/matern32.R')
   
   fet <- feature(fdata)
   
@@ -52,13 +57,5 @@ boxplot(ase[,1], ase[,2], horizontal = T, names = c('FPCA', 'GP'), cex.main = 1,
         cex.lab = 1.5,
         main = 'Mean integrated square error (MISE) for estimating linear mean function')
 
-save(ase, file = 'ase_per.Rdata')
+save(ase, file = 'ase_lin_m32.Rdata')
 
-boxplot(ase[,c(1,3:6)], pch = 16, cex = .5, horizontal = T, 
-        names = c('FPCA', 'RBF', 'Laplace', 'Matern 5/2', 'Matern 3/2'), xlab = 'Mean ASE', 
-        main = 'Linear')
-
-
-boxplot(ase[,-c(1,3:6)], pch = 16, cex = .5, horizontal = T, 
-        names = c('FPCA', 'RBF', 'Laplace', 'Matern 5/2', 'Matern 3/2'), xlab = 'Mean ASE', 
-        main = 'Periodic')

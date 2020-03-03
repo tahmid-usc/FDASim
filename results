@@ -1,3 +1,14 @@
+# March 3rd
+
+Classification simulation result
+
+          y
+pred       Linear Periodic
+  Linear       48        2
+  Periodic      2       48
+  
+  error rate 4%
+
 # Jan 2020
 
 MISE for periodic
@@ -12,6 +23,44 @@ apply(ase, 2, mean)
   mise.fpca     mise.gp 
 0.004858857 0.001958225 
 
+
+#Laplace
+
+Linear
+
+  mise.fpca     mise.gp 
+0.004022985 0.003328082 
+
+
+Periodic
+> apply(ase, 2, mean)
+  mise.fpca     mise.gp 
+0.003852301 0.003393576 
+
+#Matern 5/2
+
+Linear
+
+  mise.fpca     mise.gp 
+0.004688426 0.001921119 
+
+Periodic
+> apply(ase, 2, mean)
+  mise.fpca     mise.gp 
+0.010649566 0.004162021 
+
+
+mater 32
+
+Linaer
+
+ apply(ase, 2, mean)
+  mise.fpca     mise.gp 
+0.004333381 0.001728598
+
+Periodic
+  mise.fpca     mise.gp 
+0.010760379 0.004673848
 #-----------------------
 
 

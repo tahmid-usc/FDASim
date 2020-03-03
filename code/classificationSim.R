@@ -24,28 +24,26 @@ source('code/functionsNew.R')
 createfdt <- function(n) {
   muf <- function(x) {
     1 * sin(x * 10) + 1 * x
-    #2 +  x
-  }
+}
   
   
-  train0 <- fdagen(n = 50, maxt = 10, muf = muf, theta = c(.1,.1,.01))
-  train0$z <- rep(1, dim(train0)[1])
+  train.per <- fdagen(n = 50, maxt = 10, muf = muf, theta = c(.1,.1,.08))
+  train.per$z <- rep('Periodic', dim(train.per)[1])
   
   
   
   
   muf <- function(x) {
-    #1 * sin(x * 10) + 1 * x
-    x
+    0 + 1.2 * x
   }
   
-  train1 <- fdagen(n = 50, maxt = 10, muf = muf, theta = c(.1,.1,.01))
-  train1$id <- train1$id + n
-  train1$z <- rep(0, dim(train1)[1])
+  train.lin <- fdagen(n = 50, maxt = 10, muf = muf, theta = c(.1,.1,.08))
+  train.lin$id <- train.lin$id + n
+  train.lin$z <- rep('Linear', dim(train.lin)[1])
   
   
   
-  train <- rbind(train0, train1)
+  train <- rbind(train.per, train.lin)
   
   return(train)
 }
@@ -68,8 +66,8 @@ log.prob <- c()
 
 for(i in unique(test$id)) {
   
-  fit1 <- fit.gp(fet$`0`, testx = test[test$id == i, 1], testy = test[test$id == i, 2])
-  fit2 <- fit.gp(fet$`1`, testx = test[test$id == i, 1], testy = test[test$id == i, 2])
+  fit1 <- fit.gp(fet$Periodic, testx = test[test$id == i, 1], testy = test[test$id == i, 2])
+  fit2 <- fit.gp(fet$Linear, testx = test[test$id == i, 1], testy = test[test$id == i, 2])
   log.prob <- rbind(log.prob, c(fit1, fit2))
   
 }
@@ -80,17 +78,23 @@ for (i in unique(test$id)) {
 }
 
 y.pred <- log.prob[,1] > log.prob[,2]
-pred <- ifelse(y.pred == 1, 0, 1)
+pred <- ifelse(y.pred == 1, 'Periodic', 'Linear')
 table(pred, y)
 err <- mean(pred != y)
 err
 
 
+plotpred <- c(which(pred == y & pred == 'Periodic')[1], which(pred == y & pred == 'Linear')[1],
+              which(pred != y & pred == 'Periodic')[1], which(pred != y & pred == 'Linear')[1])
+plotpred
 # plot
 
 
-curve(sin(x * 10) + x, 0 , 1, lwd = 3)
-curve(1 * x, 0 , 1, add = T, lwd = 3, col = 2)
-for(i in 1:50) {
-  lines(test[test$id == i, 1], test[test$id == i, 2], type = 'b', col = (test[test$id == i, 4] ) )
+curve(sin(x * 10) + x, 0 , 1, lwd = 5, xlab = 'Time', ylab = 'Y', cex.lab = 1.5, cex.axis = 1.5)
+curve( 0 + 1.2 * x, 0 , 1, add = T, lwd = 5, col = 2)
+for(i in 1:4) {
+  lines(test[test$id == plotpred[i], 1], test[test$id == plotpred[i], 2], type = 'b', col = i + 2, lwd = 5) 
 }
+legend('bottomright', c('Correct periodic', 'Correct linear', 'Incorrect periodic', 'Incorrect linear'), col = 3:6, lty = 1, bty = 'n', lwd = 2)
+
+       
