@@ -69,8 +69,8 @@ gpsmooth <- function(x, trainlist) {
   kxx <- covmat(trainx = trainlist$trainx, repnum = trainlist$rep, 
                 theta = trainlist$hyper[1:4])
   kx <-  testcov(x = x, y = trainlist$trainx, theta = trainlist$hyper[1:4])
-  kinv <-  chol2inv(chol(kxx + trainlist$hyper[5] * diag(trainlist$N)))
-  k <- kx %*% kinv
+  #kinv <-  chol2inv(chol(kxx + trainlist$hyper[5] * diag(trainlist$N)))
+  k <- kx %*% trainlist$kinv
   pred <- k %*% as.matrix(trainlist$trainy)
   return(pred)
   

@@ -58,7 +58,7 @@ fet <- feature(fdata)
 time <- seq(0, 1, length.out = 100)
 
 posMean <- gpsmooth(time, fet)
-plot(time, posMean, type = 'l', lwd = 3, ylim = c(-2,2))
+plot(time, posMean, type = 'l', lwd = 3)
 points(fdata$x, fdata$y, pch = 16)
 
 #fpca
