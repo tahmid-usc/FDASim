@@ -58,6 +58,16 @@ test <- createfdt(50)
 train <- split(train,train$z)
 fet <- lapply(train, feature)
 
+curve(sin(x * 10) + x, 0 , 1, lwd = 5, xlab = 'Time', ylab = 'Y', cex.lab = 1.5, cex.axis = 1.5, ylim = c(-1.5, 2.5))
+curve( 0 + 1.2 * x, 0 , 1, add = T, lwd = 5, col = 2)
+for(i in unique(train$Linear$id)) {
+  lines(train$Linear[train$Linear$id == i, 1], train$Linear[train$Linear$id == i, 2], col = 2, type = 'b')
+}
+for(i in unique(train$Periodic$id)) {
+  lines(train$Periodic[train$Periodic$id == i, 1], train$Periodic[train$Periodic$id == i, 2], col = 1, type = 'b')
+}
+legend('bottomright', c( 'Periodic', 'Linear'), col = 1:2, lty = 1, bty = 'n', lwd = 2)
+
 
 #------------------
 
@@ -90,11 +100,13 @@ plotpred
 # plot
 
 
-curve(sin(x * 10) + x, 0 , 1, lwd = 5, xlab = 'Time', ylab = 'Y', cex.lab = 1.5, cex.axis = 1.5)
+curve(sin(x * 10) + x, 0 , 1, lwd = 5, xlab = 'Time', ylab = 'Y', cex.lab = 1.5, cex.axis = 1.5, ylim = c(-1, 2))
 curve( 0 + 1.2 * x, 0 , 1, add = T, lwd = 5, col = 2)
 for(i in 1:4) {
   lines(test[test$id == plotpred[i], 1], test[test$id == plotpred[i], 2], type = 'b', col = i + 2, lwd = 5) 
 }
-legend('bottomright', c('Correct periodic', 'Correct linear', 'Incorrect periodic', 'Incorrect linear'), col = 3:6, lty = 1, bty = 'n', lwd = 2)
+legend(.8,-.5, c('Correct periodic', 'Correct linear', 'Incorrect periodic', 'Incorrect linear'), col = 3:6, lty = 1, bty = 'n', lwd = 2)
 
+
+#save.image('classSim')
        
