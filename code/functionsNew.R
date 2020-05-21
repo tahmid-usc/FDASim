@@ -17,7 +17,7 @@ fdagen <- function(n = 100, maxt = 20, muf, theta = rep(1,3)) {
   
   for(i in 1:n) {
     id <- rep(i, n.time[i])
-    x <- sort(runif(n.time[i], 0 , 1))
+    x <- sort(runif(n.time[i], -1 , 1))
     mu <- muf(x)
     gt <- mvrnorm(1, rep(0, n.time[i]), ker(x, l = theta[1], sigf = theta[2])) 
     #y <- mu + gt
