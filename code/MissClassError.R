@@ -81,6 +81,11 @@ missclassError <- function(n1 = 50, n2 = 50) {
 
 
 mserror <- c()
-for(i in 1:2) {
-  mserror <- cbind(mserror, missclassError(50,50))
+for(i in 1:500) {
+  mserror <- rbind(mserror, missclassError(50,50))
 }
+
+
+summary(mserror)
+boxplot(mserror, horizontal = T, xlab = 'Missclassification error rate')
+#save(mserror, file = 'mserror.Rdata')

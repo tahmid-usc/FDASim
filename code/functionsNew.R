@@ -2,10 +2,23 @@
 # Generate data 
 
 # Mean function 
-muf <- function(x) {
-  #1 * sin(x * 10) + 1 * x
-  2 +  x
+muf1 <- function(x) {
+  fx <- .25 * dnorm(x, mean = -.95, sd = .06) + 
+    .25 * dnorm(x, mean = -.5, sd = .05) + 
+    .25 * dnorm(x, mean = 0, sd = .03) +   
+    .25 * dnorm(x, mean = .5,sd = .02) 
+  return(fx/max(fx))
 }
+
+
+muf2 <- function(x) {
+  fx <- .25 * ddoublex(x, -.95,  .06) + 
+    .25 * ddoublex(x,  -.5, .05) + 
+    .25 * ddoublex(x, 0,  .03) +   
+    .25 * ddoublex(x, .5, .02) 
+  return(fx/max(fx))
+}
+
 
 # data frame
 

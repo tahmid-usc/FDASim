@@ -6,6 +6,7 @@ library(Matrix)
 library(optimx)
 library(fdapace)
 library(dplyr)
+library(cubature)
 library(smoothmest)
 
 source('code/RBF.R')
@@ -19,44 +20,25 @@ source('code/multistart.R')
 
 # Plot mean function
 
-# Mean function 
-muf <- function(x) {
-  fx <- .25 * dnorm(x, mean = -.95, sd = .06) + 
-        .25 * dnorm(x, mean = -.5, sd = .05) + 
-        .25 * dnorm(x, mean = 0, sd = .03) +   
-        .25 * dnorm(x, mean = .5,sd = .02) 
-  return(fx/max(fx))
-}
-
-
-muf <- function(x) {
-  fx <- .25 * ddoublex(x, -.95,  .06) + 
-    .25 * ddoublex(x,  -.5, .05) + 
-    .25 * ddoublex(x, 0,  .03) +   
-    .25 * ddoublex(x, .5, .02) 
-  return(fx/max(fx))
-}
-
-
-curve(muf, -1, 1, lwd = 2)
+curve(muf1, -1, 1, lwd = 2)
 
 #--------------------------------------------------
 
-funcgen <- function(muf, theta) {
+funcgen <- function(muf1, theta) {
   x <- seq(-1,1,length.out = 100)
-  mu <- muf(x)
+  mu <- muf1(x)
   y <- mu + mvrnorm(1, rep(0,100), ker(x, l = theta[1], sigf = theta[2])) 
   y <- (y - mean(mu)) 
   return(list(x=x, y = y))
 }
 
 
-func <- funcgen(muf, theta = c(.01,.1))
+func <- funcgen(muf1, theta = c(.01,.1))
 plot(func$x, func$y, type = 'l', lwd = 3, 
      main = 'Simulated random functions', xlab = 'Time', ylab = 'Y',
      cex.main = 1.5, cex.lab = 1.5, ylim=c(-2, 2))
 for(i in 1:10) {
-  func <- funcgen(muf, theta = c(.1,.1))
+  func <- funcgen(muf1, theta = c(.1,.1))
   lines(func$x, func$y, lwd = 3)
 }
 
@@ -64,11 +46,11 @@ for(i in 1:10) {
 #-------------------------------------------
 
 
-fdata <- fdagen(n = 50, maxt = 10, muf = muf, theta = c(.01,.1,.01))
+fdata <- fdagen(n = 30, maxt = 10, muf = muf1, theta = c(.01,.1,.01))
 
 #plotting FDA
 t <- seq(-1,1, length.out = 100)
-#plot(t, muf(t), type = 'l', lwd = 4, ylim = c(-3,3))
+#plot(t, muf1(t), type = 'l', lwd = 4, ylim = c(-3,3))
 plot(1, type="n", xlim=c(-1, 1), ylim=c(-2, 2), 
      main = 'Simulated functional data', xlab = 'Time', ylab = 'Y',
      cex.main = 1.5, cex.lab = 1.5)
@@ -99,7 +81,14 @@ points(fdata$x, fdata$y, pch = 16)
 fmu <- fpcamu(time, fpca)
 
 
-integrate(residfunc, lower = 0 , upper = 1, muf = muf, est = fpcamu, est_arg = fpca, subdivisions = 1000)
-integrate(residfunc, lower = 0 , upper = 1, muf = muf, est = gpsmooth, est_arg = fet, subdivisions = 1000)
+plot(time, mu.fpca, type = 'l', lwd = 3, ylim = c(-1,1.5))
+points(fdata$x, fdata$y, pch = 16)
+points(time, posMean, type = 'l', lwd = 3, col = 2)
+lines(time, muf1(time), lwd = 3, col = 3)
+legend("bottomright", c("PACE", "GP", "True"), col = 1:3, lty = 1, bty = 'n')
 
+#integrate(residfunc, lower = -1 , upper = 1, muf1 = muf1, est = fpcamu, est_arg = fpca, subdivisions = 200, rel.tol = .Machine$double.eps^0.25)
+#integrate(residfunc, lower = -1 , upper = 1, muf1 = muf1, est = gpsmooth, est_arg = fet, subdivisions = 100, rel.tol = .Machine$double.eps^0.25)
 
+hcubature(residfunc, lower = -1 , upper = 1, muf = muf1, est = gpsmooth, est_arg = fet)
+hcubature(residfunc, lower = -1 , upper = 1, muf = muf1, est = fpcamu, est_arg = fpca)
