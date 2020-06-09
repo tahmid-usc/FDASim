@@ -46,7 +46,7 @@ for(i in 1:10) {
 #-------------------------------------------
 
 
-fdata <- fdagen(n = 30, maxt = 10, muf = muf1, theta = c(.01,.1,.01))
+fdata <- fdagen(n = 20, maxt = 10, muf = muf1, theta = c(.01,.1,.01))
 
 #plotting FDA
 t <- seq(-1,1, length.out = 100)
@@ -81,14 +81,20 @@ points(fdata$x, fdata$y, pch = 16)
 fmu <- fpcamu(time, fpca)
 
 
-plot(time, mu.fpca, type = 'l', lwd = 3, ylim = c(-1,1.5))
+plot(time, mu.fpca, type = 'l', lwd = 3, ylim = c(-1,2))
 points(fdata$x, fdata$y, pch = 16)
 points(time, posMean, type = 'l', lwd = 3, col = 2)
 lines(time, muf1(time), lwd = 3, col = 3)
 legend("bottomright", c("PACE", "GP", "True"), col = 1:3, lty = 1, bty = 'n')
 
-#integrate(residfunc, lower = -1 , upper = 1, muf1 = muf1, est = fpcamu, est_arg = fpca, subdivisions = 200, rel.tol = .Machine$double.eps^0.25)
-#integrate(residfunc, lower = -1 , upper = 1, muf1 = muf1, est = gpsmooth, est_arg = fet, subdivisions = 100, rel.tol = .Machine$double.eps^0.25)
+#integrate(residfunc, lower = -1 , upper = 1, muf = muf1, est = fpcamu, est_arg = fpca, subdivisions = 200, rel.tol = .Machine$double.eps^0.25)
+#integrate(residfunc, lower = -1 , upper = 1, muf = muf1, est = gpsmooth, est_arg = fet, subdivisions = 100, rel.tol = .Machine$double.eps^0.25)
 
 hcubature(residfunc, lower = -1 , upper = 1, muf = muf1, est = gpsmooth, est_arg = fet)
 hcubature(residfunc, lower = -1 , upper = 1, muf = muf1, est = fpcamu, est_arg = fpca)
+
+
+mean((residfunc(time, muf = muf1, est = fpcamu, est_arg = fpca)))
+mean((residfunc(time, muf = muf1, est = gpsmooth, est_arg = fet)))
+
+     

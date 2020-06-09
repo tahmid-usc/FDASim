@@ -26,7 +26,7 @@ fdagen <- function(n = 100, maxt = 20, muf, theta = rep(1,3)) {
   
   train <- data.frame()
   #n number of functions in the sample data
-  n.time <- sample(1:maxt, size=n, replace=T) 
+  n.time <- sample(2:maxt, size=n, replace=T) 
   
   for(i in 1:n) {
     id <- rep(i, n.time[i])
