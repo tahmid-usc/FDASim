@@ -26,7 +26,11 @@ ASE <- function() {
   time <- seq(-1, 1, length.out = 100)
   # Generate training data----
   
-  fdata <- fdagen(n = 20, maxt = 10, muf = muf1, theta = c(.01,.1,.01))
+  source('code/RBF.R')
+  #source('code/laplace.R')
+  #source('code/matern52.R')
+  #source('code/matern32.R')
+  fdata <- fdagen(n = 10, maxt = 10, muf = muf1, theta = c(.01,.1,.01))
   # Fit FPCA
   
   fpca.dt <- MakeFPCAInputs(IDs = fdata$id, fdata$x, fdata$y, sort = FALSE)
@@ -51,16 +55,16 @@ ASE <- function() {
 }
 
 ase <- c()
-for (i in 1:500) {
+for (i in 1:100) {
   ase <- rbind(ase, ASE())
 }
 
 
 apply(ase, 2, mean)
 
-boxplot(ase[,1], ase[,2], horizontal = T, names = c('FPCA', 'GP'), cex.main = 1, 
+boxplot(ase[,1], ase[,2], horizontal = T, names = c('PACE', 'GP'), cex.main = 1, 
         cex.lab = 1.5,
         main = 'Mean integrated square error (MISE) for estimating linear mean function')
 
-#save(ase, file = 'ase_lin_m32.Rdata')
+#save(ase, file = 'rbf_muf2_n20_t20.Rdata')
 
