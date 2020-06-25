@@ -16,6 +16,10 @@ source('code/functionsNew.R')
 #source('code/multistart.R')
 
 
+# Visualize mean function
+
+t <- seq(0,1, length.out = 100)
+curve(t,mu, 0, 1)
 #--------------------------------------------------
 
 funcgen <- function(muf, theta) {
