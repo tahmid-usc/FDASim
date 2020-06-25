@@ -1,0 +1,90 @@
+New simulation results for estimating the mean function
+
+rbf_muf1_n20_t10
+
+apply(ase, 2, mean)
+ mise.fpca    mise.gp   ase.fpca     ase.gp 
+1.17316109 1.33638680 0.07717325 0.07373013 
+
+laplace_muf1_n20_t10
+
+apply(ase, 2, mean)
+ mise.fpca    mise.gp   ase.fpca     ase.gp 
+1.17090596 1.28475504 0.07711811 0.06923177 
+
+m52_muf1_n20_t10
+
+apply(ase, 2, mean)
+ mise.fpca    mise.gp   ase.fpca     ase.gp 
+1.16657776 1.32229469 0.07799013 0.07311772 
+
+m32_muf1_n20_t10
+
+apply(ase, 2, mean)
+ mise.fpca    mise.gp   ase.fpca     ase.gp 
+1.19168406 1.34595165 0.07635616 0.07250743 
+
+
+
+
+
+
+
+rbf_muf2_n20_t10
+
+apply(ase, 2, mean)
+ mise.fpca    mise.gp   ase.fpca     ase.gp 
+1.09095037 1.25411063 0.08803221 0.08232601 
+
+laplace_muf2_n20_t10
+
+apply(ase, 2, mean)
+ mise.fpca    mise.gp   ase.fpca     ase.gp 
+1.08676749 1.18459007 0.08896319 0.08519230 
+
+
+m52_muf2_n20_t10
+
+apply(ase, 2, mean)
+ mise.fpca    mise.gp   ase.fpca     ase.gp 
+1.09330367 1.24441167 0.08899766 0.08348808 
+
+m32_muf2_n20_t10
+
+apply(ase, 2, mean)
+ mise.fpca    mise.gp   ase.fpca     ase.gp 
+1.07241364 1.21305025 0.09093838 0.08824030 
+
+
+
+
+
+
+
+rbf_muf1_n10_t10
+
+apply(ase, 2, mean)
+mise.fpca   mise.gp  ase.fpca    ase.gp 
+1.4718133 1.5502660 0.2484563 0.2216939 
+
+lpalace_muf1_n10_t10
+
+apply(ase, 2, mean)
+ mise.fpca    mise.gp   ase.fpca     ase.gp 
+1.08057888 1.18004453 0.08580867 0.08315435 
+
+m52_muf1_n10_t10
+
+apply(ase, 2, mean)
+ mise.fpca    mise.gp   ase.fpca     ase.gp 
+1.08103880 1.23856289 0.08515830 0.07931619 
+
+m32_muf1_n10_t10
+
+apply(ase, 2, mean)
+ mise.fpca    mise.gp   ase.fpca     ase.gp 
+1.09099302 1.22058060 0.08816003 0.08365375 
+
+
+
+

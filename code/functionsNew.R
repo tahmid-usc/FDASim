@@ -2,10 +2,23 @@
 # Generate data 
 
 # Mean function 
-muf <- function(x) {
-  #1 * sin(x * 10) + 1 * x
-  2 +  x
+muf1 <- function(x) {
+  fx <- .25 * dnorm(x, mean = -.95, sd = .06) + 
+    .25 * dnorm(x, mean = -.5, sd = .05) + 
+    .25 * dnorm(x, mean = 0, sd = .03) +   
+    .25 * dnorm(x, mean = .5,sd = .02) 
+  return(fx/max(fx))
 }
+
+
+muf2 <- function(x) {
+  fx <- .25 * ddoublex(x, -.95,  .06) + 
+    .25 * ddoublex(x,  -.5, .05) + 
+    .25 * ddoublex(x, 0,  .03) +   
+    .25 * ddoublex(x, .5, .02) 
+  return(fx/max(fx))
+}
+
 
 # data frame
 
@@ -13,11 +26,11 @@ fdagen <- function(n = 100, maxt = 20, muf, theta = rep(1,3)) {
   
   train <- data.frame()
   #n number of functions in the sample data
-  n.time <- sample(1:maxt, size=n, replace=T) 
+  n.time <- sample(2:maxt, size=n, replace=T) 
   
   for(i in 1:n) {
     id <- rep(i, n.time[i])
-    x <- sort(runif(n.time[i], 0 , 1))
+    x <- sort(runif(n.time[i], -1 , 1))
     mu <- muf(x)
     gt <- mvrnorm(1, rep(0, n.time[i]), ker(x, l = theta[1], sigf = theta[2])) 
     #y <- mu + gt

@@ -8,9 +8,9 @@ Hyper <- function(trainx, trainy, repnum, N) {
     -dmvnorm(x = trainy, sigma = kxx + theta[5] * diag(N), log = T)
   }
   
-  parval <- c(.01, .05, .1, .5, 1, 2, 3, 4, 5)
-  parmat <- matrix(parval, nrow = length(parval), ncol = 5)
-  hyp <- multistart(parmat, fn = marlik, method='BFGS', control = list(maxit = 10000))
+#  parval <- c(.01, .05, .1, .5, 1, 2, 3, 4, 5)
+  parmat <- matrix(rexp(50, 1), ncol = 5)
+  hyp <- multistart(parmat, fn = marlik, method='Nelder-Mead', control = list(maxit = 10000))
   hyp <- as.numeric(hyp[which(hyp$value == min(hyp$value)), 1:5])^2
   return(hyp)
   
