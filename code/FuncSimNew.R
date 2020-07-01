@@ -18,17 +18,15 @@ source('code/functionsNew.R')
 source('code/multistart.R')
 
 
-<<<<<<< HEAD
 # Visualize mean function
 
 t <- seq(0,1, length.out = 100)
 curve(t,mu, 0, 1)
-=======
+
 # Plot mean function
 
 curve(muf1, -1, 1, lwd = 2)
 
->>>>>>> a3de443ab0afd621acc3a302de57e8705ad58858
 #--------------------------------------------------
 
 funcgen <- function(muf1, theta) {
@@ -65,6 +63,9 @@ for(i in 1:20){
   lines(fdata[fdata$id == i,1], fdata[fdata$id == i,2], type = 'b', lwd = 3)
 }
 
+#source('code/laplace.R')
+#source('code/matern52.R')
+#source('code/matern32.R')
 
 fet <- feature(fdata)
 
@@ -88,20 +89,65 @@ points(fdata$x, fdata$y, pch = 16)
 fmu <- fpcamu(time, fpca)
 
 
-plot(time, mu.fpca, type = 'l', lwd = 3, ylim = c(-1,2))
+plot(time, mu.fpca, type = 'l', lwd = 3, ylim = c(-1,2), xlab = 'Time', ylab = 'Y')
 points(fdata$x, fdata$y, pch = 16)
 points(time, posMean, type = 'l', lwd = 3, col = 2)
 lines(time, muf1(time), lwd = 3, col = 3)
 legend("bottomright", c("PACE", "GP", "True"), col = 1:3, lty = 1, bty = 'n')
 
-#integrate(residfunc, lower = -1 , upper = 1, muf = muf1, est = fpcamu, est_arg = fpca, subdivisions = 200, rel.tol = .Machine$double.eps^0.25)
-#integrate(residfunc, lower = -1 , upper = 1, muf = muf1, est = gpsmooth, est_arg = fet, subdivisions = 100, rel.tol = .Machine$double.eps^0.25)
 
-hcubature(residfunc, lower = -1 , upper = 1, muf = muf1, est = gpsmooth, est_arg = fet)
-hcubature(residfunc, lower = -1 , upper = 1, muf = muf1, est = fpcamu, est_arg = fpca)
+# Testing integration method
+
+f <- function(x) sin(x)^2
+f <- Vectorize(f)
+integrate(f, -1, 1)
+cubintegrate(f, -1 , 1)
+hcubature(f, -1, 1)
+mean(f(runif(500, -1 , 1)))*2
+mean(f(seq(-1,1, length.out = 1000)))
+
+# Compute error
+integrate(residfunc, lower = -1 , upper = 1, muf = muf1, est = fpcamu, 
+          est_arg = fpca, subdivisions = 1000)
+integrate(residfunc, lower = -1 , upper = 1, muf = muf1, est = gpsmooth, 
+          est_arg = fet, subdivisions = 1000)
 
 
+cubintegrate(residfunc, lower = -1 , upper = 1, method = "pcubature", muf = muf1, est = gpsmooth, est_arg = fet)
+cubintegrate(residfunc, lower = -1 , upper = 1, method = "pcubature", muf = muf1, est = fpcamu, est_arg = fpca)
+
+# investiage effect of grid size
+time <- seq(-1, 1, length.out = 100)
 mean((residfunc(time, muf = muf1, est = fpcamu, est_arg = fpca)))
 mean((residfunc(time, muf = muf1, est = gpsmooth, est_arg = fet)))
 
-     
+
+rmse <- function(n, method) {
+  if(method == 'mc') time <- runif(n, -1, 1) else time <- seq(-1, 1, length.out = n)
+  pca <- mean((residfunc(time, muf = muf1, est = fpcamu, est_arg = fpca)))
+  gp <- mean((residfunc(time, muf = muf1, est = gpsmooth, est_arg = fet)))
+  return(cbind(pca, gp))
+  
+}
+
+vrmse <- Vectorize(rmse, vectorize.args = 'n')
+#vrmse(n = 1:10, method = 'uni')
+#vrmse(n = 1:10, method = 'mc')
+
+n <- c(10, 50, 100, 200, 500, 750, 1000, 1500, 2000, 5000)
+mse.unif <- vrmse(n, method = 'unif')
+mse.mc <- vrmse(n, method = 'mc') * 2
+
+
+mse.unif
+mse.mc
+
+plot(n, mse.unif[1,], col = 1, pch = 16, ylim = c(min(mse.unif), max(mse.unif)), type = 'l', 
+     xlab = 'Grid size', ylab = 'MSE', lwd = 3, main = 'Fixed grid')
+lines(n, mse.unif[2,], col = 2, pch = 16, lwd = 3)
+legend('bottomright', c('PACE', 'GP'), lty = 1, col = 1:2, bty = 'n')
+
+plot(n,mse.mc[1,], col = 1, pch = 16, ylim = c(min(mse.mc), max(mse.mc)), type = 'l', 
+     xlab = 'Grid size', ylab = 'MSE', lwd = 3, main = 'Random grid')
+lines(n, mse.mc[2,], col = 2, pch = 16, lwd = 3)
+legend('bottomright', c('PACE', 'GP'), lty = 1, col = 1:2, bty = 'n')
