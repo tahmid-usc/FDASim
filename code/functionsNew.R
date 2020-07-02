@@ -131,3 +131,15 @@ fpcamu <- function(t, fpca) {
 residfunc <- function(x, muf, est, est_arg) {
   ((muf(x) - est(x, est_arg))^2)
 }
+
+
+# generate data
+
+
+funcgen <- function(muf, theta) {
+  x <- seq(-1,1,length.out = 100)
+  mu <- muf(x)
+  y <- mu + mvrnorm(1, rep(0,100), ker(x, l = theta[1], sigf = theta[2])) 
+  y <- (y - mean(mu)) 
+  return(list(x=x, y = y))
+}

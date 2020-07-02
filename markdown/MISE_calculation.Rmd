@@ -1,0 +1,158 @@
+---
+title: "Investigating Mean Integrated Squared Error calculation in R"
+author: "Tahmidul Islam"
+date: "7/1/2020"
+output: 
+ html_document:
+  fig_width: 14 
+  fig_height: 6
+---
+
+```{r setup, include=FALSE, echo = F}
+knitr::opts_chunk$set(echo = F, message = F, warning = F)
+```
+
+```{r}
+#loading packages
+rm(list = ls())
+library(MASS)
+library(kernlab)
+library(mvtnorm)
+library(Matrix)
+library(optimx)
+library(fdapace)
+library(dplyr)
+library(cubature)
+library(smoothmest)
+
+source('../code/RBF.R')
+source('../code/functionsNew.R')
+#source('code/laplace.R')
+#source('code/matern52.R')
+#source('code/matern32.R')
+source('../code/multistart.R')
+```
+
+We propose two new mean functions to be used for functional data simulation. One is based on normal density functions with different location and scale parameters. The other is based on Laplace (double exponential) distribution with similar manipulation. These two mean functions contain spikes of several degrees (depending on the scale parameter). The Laplace distribution outputs non-differentiable regions at the spikes.
+Proposed new mean function:
+$$
+\mu_1(t) = .25 \ N(-.95, .06) + .25 \ N(-.5, .05) + .25 \ N(0, .03) + .25 \ N(.5, .02)    
+$$
+$$
+\mu_2(t) = .25 \ dexp(-.95, .06) + .25 \ dexp(-.5, .05) + .25 \ dexp(0, .03) + .25 \ dexp(.5, .02)    
+$$
+Where $N(a,b)$ and $dexp(a,b)$ are the density function of a normal distribution and a Laplace distribution respectively with mean $a$ and standard deviation $b$.
+
+Let us plot the mean funtions.
+
+```{r}
+t <- seq(-1, 1, length.out = 100)
+par(mfrow = c(1,2))
+curve(muf1, -1, 1, lwd = 2, main = 'Mix of normal')
+curve(muf2, -1, 1, lwd = 2, main = 'Mix of double exponential')
+```
+
+Now simulate some random functions using the mean functions as the prior mean in the Gaussian process with Gaussian covariance function.
+
+```{r}
+
+func <- funcgen(muf1, theta = c(.01,.1))
+
+par(mfrow = c(1,2))
+plot(func$x, func$y, type = 'l', lwd = 3, 
+     main = 'Mix of normal', xlab = 'Time', ylab = 'Y',
+     cex.main = 1.5, cex.lab = 1.5, ylim=c(-2, 2))
+for(i in 1:10) {
+  func <- funcgen(muf1, theta = c(.1,.1))
+  lines(func$x, func$y, lwd = 3)
+}
+
+func <- funcgen(muf2, theta = c(.01,.1))
+plot(func$x, func$y, type = 'l', lwd = 3, 
+     main = 'Mix of double exponential', xlab = 'Time', ylab = 'Y',
+     cex.main = 1.5, cex.lab = 1.5, ylim=c(-2, 2))
+for(i in 1:10) {
+  func <- funcgen(muf2, theta = c(.1,.1))
+  lines(func$x, func$y, lwd = 3)
+}
+
+```
+
+
+Now we generate sparse functional data which are actually observed in practice. To introduce sparsity, first we sample any integer $n_t$ between 2 to 10. This is the number of time points each function will be observed on. Further we sample $n_t$ time points from a uniform (-1, 1). 
+
+```{r}
+fdata <- fdagen(n = 20, maxt = 10, muf = muf1, theta = c(.01,.1,.01))
+
+par(mfrow = c(1,2))
+
+plot(1, type="n", xlim=c(-1, 1), ylim=c(-2, 2), 
+     main = 'Mix of normal', xlab = 'Time', ylab = 'Y',
+     cex.main = 1.5, cex.lab = 1.5)
+for(i in 1:20){
+  lines(fdata[fdata$id == i,1], fdata[fdata$id == i,2], type = 'b', lwd = 2, col = rgb(0,0,0,.5))
+}
+lines(t, muf1(t), type = 'l', lwd = 4, ylim = c(-3,3))
+
+fdata <- fdagen(n = 20, maxt = 10, muf = muf2, theta = c(.01,.1,.01))
+
+plot(1, type="n", xlim=c(-1, 1), ylim=c(-2, 2), 
+     main = 'Mix of double exponential', xlab = 'Time', ylab = 'Y',
+     cex.main = 1.5, cex.lab = 1.5)
+for(i in 1:20){
+  lines(fdata[fdata$id == i,1], fdata[fdata$id == i,2], type = 'b', lwd = 2, col = rgb(0,0,0,.5))
+}
+lines(t, muf2(t), type = 'l', lwd = 4, ylim = c(-3,3))
+
+```
+
+We will fit our GP based model to the generated data and compare with the fit with the PACE (Yao, Mueller, and Wang (2005)) method based on Functional Principal Component Analysis (FPCA), a key technique for functional data analysis, for sparsely or densely sampled random trajectories and time courses, via the Principal Analysis by Conditional Estimation (PACE) algorithm.
+
+## Mixed of normal density mean function
+
+```{r}
+fdata <- fdagen(n = 20, maxt = 10, muf = muf1, theta = c(.01,.1,.01))
+time <- seq(-1, 1, length.out = 100)
+
+# GP
+
+#Gaussian kernel
+fet.muf1.rbf <- feature(fdata)
+posMean.muf1.rbf <- gpsmooth(time, fet.muf1.rbf)
+
+#Laplace kernel
+
+source('../code/laplace.R')
+fet.muf1.lap <- feature(fdata)
+posMean.muf1.lap <- gpsmooth(time, fet.muf1.lap)
+
+# Mtern 5/2 kernel
+
+source('../code/matern52.R')
+fet.muf1.m52 <- feature(fdata)
+posMean.muf1.m52 <- gpsmooth(time, fet.muf1.m52)
+
+# Matern 3/2
+
+source('../code/matern32.R')
+fet.muf1.m32 <- feature(fdata)
+posMean.muf1.m32 <- gpsmooth(time, fet.muf1.m32)
+
+# PACE
+fpca.dt <- MakeFPCAInputs(IDs = fdata$id, fdata$x, fdata$y, sort = FALSE)
+fpca <- FPCA(fpca.dt$Ly, fpca.dt$Lt, optns = list(dataType = 'Sparse'))
+
+fdata <- arrange(fdata, x)
+mu.fpca <- Lwls1D(fpca$bwMu, xin = fdata$x, yin = fdata$y, xout = time, kernel_type = 'gauss')
+
+fmu <- fpcamu(time, fpca)
+
+#plot
+plot(time, mu.fpca, type = 'l', lwd = 3, ylim = c(-1,2), xlab = 'Time', ylab = 'Y')
+points(fdata$x, fdata$y, pch = 16)
+points(time, posMean, type = 'l', lwd = 3, col = 2)
+lines(time, muf1(time), lwd = 3, col = 3)
+legend("bottomright", c("PACE", "GP", "True"), col = 1:3, lty = 1, bty = 'n')
+
+```
+

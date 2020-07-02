@@ -29,16 +29,7 @@ curve(muf1, -1, 1, lwd = 2)
 
 #--------------------------------------------------
 
-funcgen <- function(muf1, theta) {
-  x <- seq(-1,1,length.out = 100)
-  mu <- muf1(x)
-  y <- mu + mvrnorm(1, rep(0,100), ker(x, l = theta[1], sigf = theta[2])) 
-  y <- (y - mean(mu)) 
-  return(list(x=x, y = y))
-}
-
-
-func <- funcgen(muf1, theta = c(.01,.1))
+func <- funcgen(muf2, theta = c(.01,.1))
 plot(func$x, func$y, type = 'l', lwd = 3, 
      main = 'Simulated random functions', xlab = 'Time', ylab = 'Y',
      cex.main = 1.5, cex.lab = 1.5, ylim=c(-2, 2))
@@ -98,17 +89,17 @@ legend("bottomright", c("PACE", "GP", "True"), col = 1:3, lty = 1, bty = 'n')
 
 # Testing integration method
 
-f <- function(x) sin(x)^2
+f <- function(x) abs(sin(x))
 f <- Vectorize(f)
 integrate(f, -1, 1)
 cubintegrate(f, -1 , 1)
 hcubature(f, -1, 1)
-mean(f(runif(500, -1 , 1)))*2
+mean(f(runif(1000, -1 , 1)))*2
 mean(f(seq(-1,1, length.out = 1000)))
 
 # Compute error
 integrate(residfunc, lower = -1 , upper = 1, muf = muf1, est = fpcamu, 
-          est_arg = fpca, subdivisions = 1000)
+          est_arg = fpca, subdivisions = 1000, abs.tol = .02)
 integrate(residfunc, lower = -1 , upper = 1, muf = muf1, est = gpsmooth, 
           est_arg = fet, subdivisions = 1000)
 
@@ -134,7 +125,7 @@ vrmse <- Vectorize(rmse, vectorize.args = 'n')
 #vrmse(n = 1:10, method = 'uni')
 #vrmse(n = 1:10, method = 'mc')
 
-n <- c(10, 50, 100, 200, 500, 750, 1000, 1500, 2000, 5000)
+n <- c(10, 50, 100, 200, 500, 750, 1000, 1500, 2000, 5000, 10000, 50000)
 mse.unif <- vrmse(n, method = 'unif')
 mse.mc <- vrmse(n, method = 'mc') * 2
 
