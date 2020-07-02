@@ -159,7 +159,7 @@ fmu1 <- fpcamu(time, fpca1)
 We can inspect the fit of the mean function estimation by GP based method and compare with PACE. For GP method, we have used four different covariance kernels: Gaussian (RBF), Laplace, Matern 5/2 and Matern 3/2.
 
 ```{r}
-plot(time, muf1.fpca, type = 'l', lwd = 3, ylim = c(-1,2), xlab = 'Time', ylab = 'Y', col = 6, main = 'Mix of normal densities')
+plot(time, fmu1, type = 'l', lwd = 3, ylim = c(-1,2), xlab = 'Time', ylab = 'Y', col = 6, main = 'Mix of normal densities')
 points(fdata1$x, fdata1$y, pch = 16, cex = .8)
 lines(time, posMean.muf1.rbf, type = 'l', lwd = 3, col = 2)
 lines(time, posMean.muf1.lap, type = 'l', lwd = 3, col = 3)
@@ -217,7 +217,7 @@ fmu2 <- fpcamu(time, fpca2)
 
 
 ```{r}
-plot(time, muf2.fpca, type = 'l', lwd = 3, ylim = c(-1,2), xlab = 'Time', ylab = 'Y', col = 6, main = 'Mix of double exponential densities')
+plot(time, fmu2, type = 'l', lwd = 3, ylim = c(-1,2), xlab = 'Time', ylab = 'Y', col = 6, main = 'Mix of double exponential densities')
 points(fdata2$x, fdata2$y, pch = 16, cex = .8)
 lines(time, posMean.muf2.rbf, type = 'l', lwd = 3, col = 2)
 lines(time, posMean.muf2.lap, type = 'l', lwd = 3, col = 3)

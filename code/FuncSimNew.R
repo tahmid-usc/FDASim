@@ -80,7 +80,7 @@ points(fdata$x, fdata$y, pch = 16)
 fmu <- fpcamu(time, fpca)
 
 
-plot(time, mu.fpca, type = 'l', lwd = 3, ylim = c(-1,2), xlab = 'Time', ylab = 'Y')
+plot(time, fmu, type = 'l', lwd = 3, ylim = c(-1,2), xlab = 'Time', ylab = 'Y')
 points(fdata$x, fdata$y, pch = 16)
 points(time, posMean, type = 'l', lwd = 3, col = 2)
 lines(time, muf1(time), lwd = 3, col = 3)
