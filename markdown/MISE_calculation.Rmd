@@ -9,7 +9,7 @@ output:
 ---
 
 ```{r setup, include = FALSE, echo = FALSE, warning = FALSE, error = FALSE, message = FALSE}
-knitr::opts_chunk$set(echo = F, message = F, warning = F)
+knitr::opts_chunk$set(echo = F, message = F, warning = F, cache = TRUE, autodep = TRUE)
 ```
 
 ```{r}
@@ -172,7 +172,7 @@ legend("top", c("True", "Gaussian", 'Laplace', 'Matern 5/2', 'Matern 3/2', "PACE
 We can repeat this procedure for the mix of double exponential density mean function.
 
 ```{r}
-# generate data from mixed normal
+# generate data from mixed double exponential
 source('../code/RBF.R')
 fdata2 <- fdagen(n = 20, maxt = 10, muf = muf2, theta = c(.01,.1,.01))
 ```
@@ -242,7 +242,7 @@ Here the time points $t_i$'s form a fixed grid of points over the support of the
 
 ```{r}
 n <- c(10, 50, 100, 200, 500, 750, 1000, 1500, 2000, 5000, 10000, 50000)
-kername <- c('rbf', 'lap', 'm52', 'm32')
+kername <- c('Gaussian', 'Laplace', 'Matern_5/2', 'Matern 3/2', 'PACE')
 
 source('../code/RBF.R')
 mse.muf1 <- vrmse(n, method = 'unif', muf = muf1, est = gpsmooth, est_arg = fet.muf1.rbf)
@@ -258,14 +258,14 @@ mse.muf1 <- as.data.frame(mse.muf1)
 ```
 
 ```{r}
-names(mse.muf1) <- c('Gaussian', 'Laplace', 'Matern_5/2', 'Matern 3/2', 'PACE')
+names(mse.muf1) <- kername
 mse.muf1 <-cbind(n, mse.muf1)
 mse.muf1 %>% kable() %>% kable_styling()
 ```
 
 ```{r}
 plot(n, mse.muf1[,2], col = 1, pch = 16, ylim = c(min(mse.muf1[,-1]), max(mse.muf1[,-1])), type = 'l', 
-     xlab = 'Grid size', ylab = 'MSE', lwd = 3, main = 'Fixed grid')
+     xlab = 'Grid size', ylab = 'MSE', lwd = 3, main = 'MSE')
 for (i in 3:6) {
   lines(n, mse.muf1[,i], col = i-1, pch = 16, lwd = 3)
 }
@@ -277,9 +277,6 @@ legend('bottom', c('Gaussian', 'Laplace', 'Matern_5/2', 'Matern 3/2', 'PACE'), l
 
 
 ```{r}
-n <- c(10, 50, 100, 200, 500, 750, 1000, 1500, 2000, 5000, 10000, 50000)
-kername <- c('rbf', 'lap', 'm52', 'm32')
-
 source('../code/RBF.R')
 mse.muf2 <- vrmse(n, method = 'unif', muf = muf2, est = gpsmooth, est_arg = fet.muf2.rbf)
 source('../code/laplace.R')
@@ -294,14 +291,14 @@ mse.muf2 <- as.data.frame(mse.muf2)
 ```
 
 ```{r}
-names(mse.muf2) <- c('Gaussian', 'Laplace', 'Matern_5/2', 'Matern 3/2', 'PACE')
+names(mse.muf2) <- kername
 mse.muf2 <-cbind(n, mse.muf2)
 mse.muf2 %>% kable() %>% kable_styling()
 ```
 
 ```{r}
 plot(n, mse.muf2[,2], col = 1, pch = 16, ylim = c(min(mse.muf2[,-1]), max(mse.muf2[,-1])), type = 'l', 
-     xlab = 'Grid size', ylab = 'MSE', lwd = 3, main = 'Fixed grid')
+     xlab = 'Grid size', ylab = 'MSE', lwd = 3, main = 'MSE')
 for (i in 3:6) {
   lines(n, mse.muf2[,i], col = (i-1), pch = 16, lwd = 3)
 }
@@ -309,4 +306,88 @@ for (i in 3:6) {
 legend('bottom', c('Gaussian', 'Laplace', 'Matern_5/2', 'Matern 3/2', 'PACE'), lty = 1, col = 1:5, bty = 'n', horiz = T)
 ```
 
+## Mean Integrated Squared Error (MISE)
 
+The mean integrated squared error (MISE) is defined by
+$$
+E || \hat f - f ||^2 = E \int \big( \hat f(t) - f(t) \big)^2 dt.
+$$
+
+Where $f$ is the true function. We first compute the integrated squared error.
+
+```{r, results = 'markup', echo = TRUE}
+# Compute error
+rint <- integrate(residfunc, lower = -1 , upper = 1, muf = muf1, est = gpsmooth, 
+          est_arg = fet.muf1.rbf, subdivisions = 10000)$value
+rint <- cbind(rint,
+integrate(residfunc, lower = -1 , upper = 1, muf = muf1, est = gpsmooth, 
+          est_arg = fet.muf1.lap, subdivisions = 10000)$value,
+
+integrate(residfunc, lower = -1 , upper = 1, muf = muf1, est = gpsmooth, 
+          est_arg = fet.muf1.m52, subdivisions = 10000)$value,
+
+integrate(residfunc, lower = -1 , upper = 1, muf = muf1, est = gpsmooth, 
+          est_arg = fet.muf1.m32, subdivisions = 10000)$value)
+
+integrate(residfunc, lower = -1 , upper = 1, muf = muf1, est = fpcamu, 
+          est_arg = fpca1, subdivisions = 10000)$value
+```
+
+Since R's base code for integration using adaptive quadrature sometimes results in error, we use a package called 'cubature'. This package uses adative and monte-carlo integration. We show results for the mix of normal density mean function.
+
+```{r}
+cubint <- cubintegrate(residfunc, lower = -1 , upper = 1, method = "pcubature", muf = muf1, est = gpsmooth, est_arg = fet.muf1.rbf)$integral
+
+cubint <- cbind(cubint,
+cubintegrate(residfunc, lower = -1 , upper = 1, method = "pcubature", muf = muf1, est = gpsmooth, est_arg = fet.muf1.lap)$integral,
+
+cubintegrate(residfunc, lower = -1 , upper = 1, method = "pcubature", muf = muf1, est = gpsmooth, est_arg = fet.muf1.m52)$integral,
+
+cubintegrate(residfunc, lower = -1 , upper = 1, method = "pcubature", muf = muf1, est = gpsmooth, est_arg = fet.muf1.m32)$integral,
+
+cubintegrate(residfunc, lower = -1 , upper = 1, method = "pcubature", muf = muf1, est = fpcamu, est_arg = fpca1)$integral)
+```
+
+```{r}
+rint <- cbind(rint, NA)
+intresult <- round(rbind(rint, cubint), 4)
+intresult <- cbind(c('Base R', 'Cubature'), intresult)
+colnames(intresult) <- c('Method','Gaussian', 'Laplace', 'Matern_5/2', 'Matern 3/2', 'PACE')
+intresult %>% kable() %>% kable_styling()
+```
+
+Clearly, there are discrepencies in the integration result. We implement a simple Monte Carolo integration using uniform distribution. We generate $N$ time points from uniform(-1,1) and approximate the integral.
+
+$$
+\int_a^b f(t) dt = (b-a) \frac{1}{N} \sum f(t_i).  
+$$
+
+```{r}
+source('../code/RBF.R')
+ise.muf1 <- vrmse(n, method = 'mc', muf = muf1, est = gpsmooth, est_arg = fet.muf1.rbf) *2
+source('../code/laplace.R')
+ise.muf1 <- cbind(ise.muf1, vrmse(n, method = 'mc', muf = muf1, est = gpsmooth, est_arg = fet.muf1.lap)) *2
+source('../code/matern52.R')
+ise.muf1 <- cbind(ise.muf1, vrmse(n, method = 'mc', muf = muf1, est = gpsmooth, est_arg = fet.muf1.m52)) *2
+source('../code/matern32.R')
+ise.muf1 <- cbind(ise.muf1, vrmse(n, method = 'mc', muf = muf1, est = gpsmooth, est_arg = fet.muf1.m32)) *2
+
+ise.muf1 <- cbind(ise.muf1, vrmse(n, method = 'mc', muf = muf1, est = fpcamu, est_arg = fpca1)) *2
+ise.muf1 <- as.data.frame(ise.muf1)
+```
+
+
+```{r}
+names(ise.muf1) <- kername
+ise.muf1 <-cbind(n, ise.muf1)
+ise.muf1 %>% kable() %>% kable_styling()
+```
+
+```{r}
+plot(n, ise.muf1[,2], col = 1, pch = 16, ylim = c(min(ise.muf1[,-1]), max(ise.muf1[,-1])), type = 'l', 
+     xlab = 'Grid size', ylab = 'ISE', lwd = 3, main = 'ISE')
+for (i in 3:6) {
+  lines(n, ise.muf1[,i], col = i-1, pch = 16, lwd = 3)
+}
+legend('bottom', c('Gaussian', 'Laplace', 'Matern_5/2', 'Matern 3/2', 'PACE'), lty = 1, col = 1:5, bty = 'n', horiz = T)
+```

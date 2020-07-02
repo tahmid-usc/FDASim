@@ -1,0 +1,11 @@
+base
+MASS
+kernlab
+mvtnorm
+Matrix
+optimx
+fdapace
+dplyr
+cubature
+smoothmest
+kableExtra
