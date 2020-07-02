@@ -108,7 +108,7 @@ cubintegrate(residfunc, lower = -1 , upper = 1, method = "pcubature", muf = muf1
 cubintegrate(residfunc, lower = -1 , upper = 1, method = "pcubature", muf = muf1, est = fpcamu, est_arg = fpca)
 
 # investiage effect of grid size
-time <- seq(-1, 1, length.out = 100)
+time <- seq(-1, 1, length.out = 1000)
 mean((residfunc(time, muf = muf1, est = fpcamu, est_arg = fpca)))
 mean((residfunc(time, muf = muf1, est = gpsmooth, est_arg = fet)))
 
@@ -118,7 +118,6 @@ rmse <- function(n, method) {
   pca <- mean((residfunc(time, muf = muf1, est = fpcamu, est_arg = fpca)))
   gp <- mean((residfunc(time, muf = muf1, est = gpsmooth, est_arg = fet)))
   return(cbind(pca, gp))
-  
 }
 
 vrmse <- Vectorize(rmse, vectorize.args = 'n')

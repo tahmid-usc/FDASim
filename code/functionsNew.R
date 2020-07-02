@@ -143,3 +143,14 @@ funcgen <- function(muf, theta) {
   y <- (y - mean(mu)) 
   return(list(x=x, y = y))
 }
+
+
+# RMSE
+
+rmse <- function(n, method, muf, est, est_arg) {
+  if(method == 'mc') time <- runif(n, -1, 1) else time <- seq(-1, 1, length.out = n)
+  mse <-  mean((residfunc(time, muf, est, est_arg)))
+  return(mse)
+}
+
+vrmse <- Vectorize(rmse, vectorize.args = 'n')

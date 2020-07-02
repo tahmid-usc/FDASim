@@ -169,64 +169,6 @@ lines(time, muf1(time), lwd = 3, col = 1)
 legend("top", c("True", "Gaussian", 'Laplace', 'Matern 5/2', 'Matern 3/2', "PACE"), col = 1:6, lty = 1, bty = 'n', horiz = T, lwd = 3)
 ```
 
-We can repeat this procedure for the mix of double exponential density mean function.
-
-```{r}
-# generate data from mixed normal
-source('../code/RBF.R')
-fdata2 <- fdagen(n = 20, maxt = 10, muf = muf2, theta = c(.01,.1,.01))
-```
-
-```{r, results = 'hide'}
-# GP fit with all available kernels
-
-#Gaussian kernel
-source('../code/RBF.R')
-fet.muf2.rbf <- feature(fdata2)
-posMean.muf2.rbf <- gpsmooth(time, fet.muf2.rbf)
-
-#Laplace kernel
-
-source('../code/laplace.R')
-fet.muf2.lap <- feature(fdata2)
-posMean.muf2.lap <- gpsmooth(time, fet.muf2.lap)
-
-# Mtern 5/2 kernel
-
-source('../code/matern52.R')
-fet.muf2.m52 <- feature(fdata2)
-posMean.muf2.m52 <- gpsmooth(time, fet.muf2.m52)
-
-# Matern 3/2
-
-source('../code/matern32.R')
-fet.muf2.m32 <- feature(fdata2)
-posMean.muf2.m32 <- gpsmooth(time, fet.muf2.m32)
-```
-
-```{r, results = 'hide'}
-# PACE
-fpca.dt2 <- MakeFPCAInputs(IDs = fdata2$id, fdata2$x, fdata2$y, sort = FALSE)
-fpca2 <- FPCA(fpca.dt2$Ly, fpca.dt2$Lt, optns = list(dataType = 'Sparse'))
-
-fdata2 <- arrange(fdata2, x)
-muf2.fpca <- Lwls1D(fpca2$bwMu, xin = fdata2$x, yin = fdata2$y, xout = time, kernel_type = 'gauss')
-
-fmu2 <- fpcamu(time, fpca2)
-```
-
-
-```{r}
-plot(time, muf2.fpca, type = 'l', lwd = 3, ylim = c(-1,2), xlab = 'Time', ylab = 'Y', col = 6, main = 'Mix of double exponential densities')
-points(fdata2$x, fdata2$y, pch = 16, cex = .8)
-lines(time, posMean.muf2.rbf, type = 'l', lwd = 3, col = 2)
-lines(time, posMean.muf2.lap, type = 'l', lwd = 3, col = 3)
-lines(time, posMean.muf2.m52, type = 'l', lwd = 3, col = 4)
-lines(time, posMean.muf2.m32, type = 'l', lwd = 3, col = 5)
-lines(time, muf2(time), lwd = 3, col = 1)
-legend("top", c("True", "Gaussian", 'Laplace', 'Matern 5/2', 'Matern 3/2', "PACE"), col = 1:6, lty = 1, bty = 'n', horiz = T, lwd = 3)
-```
-
 
 ## Error in mean function estimation
 
@@ -243,16 +185,10 @@ Here the time points $t_i$'s form a fixed grid of points over the support of the
 ```{r}
 n <- c(10, 50, 100, 200, 500, 750, 1000, 1500, 2000, 5000, 10000, 50000)
 kername <- c('rbf', 'lap', 'm52', 'm32')
-
-source('../code/RBF.R')
-mse.muf1 <- vrmse(n, method = 'unif', muf = muf1, est = gpsmooth, est_arg = fet.muf1.rbf)
-source('../code/laplace.R')
-mse.muf1 <- cbind(mse.muf1, vrmse(n, method = 'unif', muf = muf1, est = gpsmooth, est_arg = fet.muf1.lap))
-source('../code/matern52.R')
-mse.muf1 <- cbind(mse.muf1, vrmse(n, method = 'unif', muf = muf1, est = gpsmooth, est_arg = fet.muf1.m52))
-source('../code/matern32.R')
-mse.muf1 <- cbind(mse.muf1, vrmse(n, method = 'unif', muf = muf1, est = gpsmooth, est_arg = fet.muf1.m32))
-
+mse.muf1 <- c()
+for(i in kername) {
+  mse.muf1 <- cbind(mse.muf1, vrmse(n, method = 'unif', muf = muf1, est = gpsmooth, est_arg = get(paste0('fet.muf1.', i))))
+}
 mse.muf1 <- cbind(mse.muf1, vrmse(n, method = 'unif', muf = muf1, est = fpcamu, est_arg = fpca1))
 mse.muf1 <- as.data.frame(mse.muf1)
 ```
@@ -271,42 +207,4 @@ for (i in 3:6) {
 }
 legend('bottom', c('Gaussian', 'Laplace', 'Matern_5/2', 'Matern 3/2', 'PACE'), lty = 1, col = 1:5, bty = 'n', horiz = T)
 ```
-
-
-### Mix of double exponential densities
-
-
-```{r}
-n <- c(10, 50, 100, 200, 500, 750, 1000, 1500, 2000, 5000, 10000, 50000)
-kername <- c('rbf', 'lap', 'm52', 'm32')
-
-source('../code/RBF.R')
-mse.muf2 <- vrmse(n, method = 'unif', muf = muf2, est = gpsmooth, est_arg = fet.muf2.rbf)
-source('../code/laplace.R')
-mse.muf2 <- cbind(mse.muf2, vrmse(n, method = 'unif', muf = muf2, est = gpsmooth, est_arg = fet.muf2.lap))
-source('../code/matern52.R')
-mse.muf2 <- cbind(mse.muf2, vrmse(n, method = 'unif', muf = muf2, est = gpsmooth, est_arg = fet.muf2.m52))
-source('../code/matern32.R')
-mse.muf2 <- cbind(mse.muf2, vrmse(n, method = 'unif', muf = muf2, est = gpsmooth, est_arg = fet.muf2.m32))
-
-mse.muf2 <- cbind(mse.muf2, vrmse(n, method = 'unif', muf = muf2, est = fpcamu, est_arg = fpca2))
-mse.muf2 <- as.data.frame(mse.muf2)
-```
-
-```{r}
-names(mse.muf2) <- c('Gaussian', 'Laplace', 'Matern_5/2', 'Matern 3/2', 'PACE')
-mse.muf2 <-cbind(n, mse.muf2)
-mse.muf2 %>% kable() %>% kable_styling()
-```
-
-```{r}
-plot(n, mse.muf2[,2], col = 1, pch = 16, ylim = c(min(mse.muf2[,-1]), max(mse.muf2[,-1])), type = 'l', 
-     xlab = 'Grid size', ylab = 'MSE', lwd = 3, main = 'Fixed grid')
-for (i in 3:6) {
-  lines(n, mse.muf2[,i], col = (i-1), pch = 16, lwd = 3)
-}
-
-legend('bottom', c('Gaussian', 'Laplace', 'Matern_5/2', 'Matern 3/2', 'PACE'), lty = 1, col = 1:5, bty = 'n', horiz = T)
-```
-
 
