@@ -1,0 +1,17 @@
+unnamed-chunk-1	BDmat	covmat	fdagen	feature	fit.gp	fpcamu	funcgen	gpsmooth	Hyper	Jmat	ker	muf1	muf2	residfunc	rmse	testcov	testmat	vrmse
+unnamed-chunk-2	t
+unnamed-chunk-3	func	i	.Random.seed
+unnamed-chunk-4	fdata	i
+unnamed-chunk-5	fdata1	time
+unnamed-chunk-6	fet.muf1.lap	fet.muf1.m32	fet.muf1.m52	fet.muf1.rbf	posMean.muf1.lap	posMean.muf1.m32	posMean.muf1.m52	posMean.muf1.rbf	covf	covfTest
+unnamed-chunk-7	fdata1	fmu1	fpca.dt1	fpca1	muf1.fpca
+unnamed-chunk-8	
+unnamed-chunk-9	kername	mse.muf1	n
+unnamed-chunk-10	mse.muf1	.muf1_cache/html/unnamed-chunk-10_f5657f089b0b034eef1070342079893a_meta
+unnamed-chunk-11	i
+unnamed-chunk-12	rint
+unnamed-chunk-13	cubint
+unnamed-chunk-14	intresult	rint	.muf1_cache/html/unnamed-chunk-14_9c7a6dd6faceeabf0368def989cc1058_meta
+unnamed-chunk-15	ise.muf1
+unnamed-chunk-16	ise.muf1	.muf1_cache/html/unnamed-chunk-16_26206f0acabc52d1d0b4855ff01a3cb5_meta
+unnamed-chunk-17	i
