@@ -1,0 +1,26 @@
+setup	$	::
+unnamed-chunk-1	library	ls	rm	source
+unnamed-chunk-2	c	curve	muf1	muf2	par	seq
+unnamed-chunk-3	$	c	for	funcgen	lines	muf1	muf2	par	plot
+unnamed-chunk-4	load
+unnamed-chunk-5	$	==	c	fdata1	fdata2	for	lines	muf1	muf2	par	plot	rgb	t
+unnamed-chunk-6	
+unnamed-chunk-7	
+unnamed-chunk-8	$	c	F	fdata1	fmu1	legend	lines	muf1	plot	points	posMean.muf1.lap	posMean.muf1.m32	posMean.muf1.m52	posMean.muf1.rbf	time
+unnamed-chunk-9	
+unnamed-chunk-10	
+unnamed-chunk-11	$	c	fdata2	fmu2	legend	lines	muf2	plot	points	posMean.muf2.lap	posMean.muf2.m32	posMean.muf2.m52	posMean.muf2.rbf	T	time
+unnamed-chunk-12	
+unnamed-chunk-13	
+unnamed-chunk-14	%>%	c	cbind	colnames<-	kable	kable_styling	kername	rbind	round	sase.muf1	sase.muf2
+unnamed-chunk-15	
+unnamed-chunk-16	
+unnamed-chunk-17	%>%	c	cbind	colnames<-	kable	kable_styling	kername	rbind	rint.muf1	rint.muf2	round
+unnamed-chunk-18	
+unnamed-chunk-19	
+unnamed-chunk-20	%>%	c	cbind	colnames<-	cubint.muf1	cubint.muf2	kable	kable_styling	kername	rbind	round
+unnamed-chunk-21	
+unnamed-chunk-22	
+unnamed-chunk-23	%>%	c	cbind	colnames<-	ise.muf1	ise.muf2	kable	kable_styling	kername	rbind	round
+unnamed-chunk-24	%>%	c	cbind	colnames<-	cubint.muf1	ise.muf1	kable	kable_styling	kername	rbind	rint.muf1	round	sase.muf1
+unnamed-chunk-25	%>%	c	cbind	colnames<-	cubint.muf2	ise.muf2	kable	kable_styling	kername	rbind	rint.muf2	round	sase.muf2

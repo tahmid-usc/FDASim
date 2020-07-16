@@ -1,0 +1,130 @@
+---
+title: "Error Mean function 01"
+author: "Tahmidul Islam"
+date: "7/1/2020"
+output: 
+ html_document:
+  fig_width: 14 
+  fig_height: 6
+---
+
+```{r setup, include = FALSE, echo = FALSE, warning = FALSE, message = FALSE, cache = TRUE, autodep = TRUE, error = TRUE}
+knitr::opts_chunk$set(echo = F, message = F, warning = F, cache = TRUE, autodep = TRUE, error = TRUE)
+```
+
+```{r}
+#loading packages
+rm(list = ls())
+library(MASS)
+library(kernlab)
+library(mvtnorm)
+library(Matrix)
+library(optimx)
+library(fdapace)
+library(dplyr)
+library(cubature)
+library(smoothmest)
+library(kableExtra)
+library(colorspace)
+
+source('../code/RBF.R')
+source('../code/functionsTest.R')
+#source('../code/functionsNew.R')
+#source('code/laplace.R')
+#source('code/matern52.R')
+#source('code/matern32.R')
+source('../code/multistart.R')
+```
+
+## Mean Integrated Squared Error (MISE)
+
+The mean integrated squared error (MISE) is defined by
+$$
+E || \hat f - f ||^2 = E \int \big( \hat f(t) - f(t) \big)^2 dt.
+$$
+
+Where $f$ is the true function. We first compute the integrated squared error.
+
+```{r, results = 'markup', echo = TRUE}
+# Compute error
+source('../code/RBF.R')
+rint <- integrate(residfunc, lower = 0 , upper = 1, muf = muf1, est = gpsmooth, 
+          est_arg = fet.muf1.rbf, subdivisions = 10000)$value
+source('../code/laplace.R')
+rint <- cbind(rint,
+integrate(residfunc, lower = 0 , upper = 1, muf = muf1, est = gpsmooth, 
+          est_arg = fet.muf1.lap, subdivisions = 10000)$value)
+source('../code/matern52.R')
+rint <- cbind(rint,
+integrate(residfunc, lower = 0 , upper = 1, muf = muf1, est = gpsmooth, 
+          est_arg = fet.muf1.m52, subdivisions = 10000)$value)
+source('../code/matern32.R')
+rint <- cbind(rint,
+integrate(residfunc, lower = 0 , upper = 1, muf = muf1, est = gpsmooth, 
+          est_arg = fet.muf1.m32, subdivisions = 10000)$value)
+rint <- cbind(rint,
+integrate(residfunc, lower = 0, upper = 1, muf = muf1, est = fpcamu, 
+          est_arg = fpca1, subdivisions = 10000)$value)
+```
+
+Since R's base code for integration using adaptive quadrature sometimes results in error, we use a package called 'cubature'. This package uses adative and monte-carlo integration. We show results for the mix of normal density mean function.
+
+```{r}
+source('../code/RBF.R')
+cubint <- cubintegrate(residfunc, lower = 0 , upper = 1, method = "pcubature", muf = muf1, est = gpsmooth, est_arg = fet.muf1.rbf)$integral
+source('../code/laplace.R')
+cubint <- cbind(cubint,
+cubintegrate(residfunc, lower = 0 , upper = 1, method = "pcubature", muf = muf1, est = gpsmooth, est_arg = fet.muf1.lap)$integral)
+source('../code/matern52.R')
+cubint <- cbind(cubint,
+cubintegrate(residfunc, lower = 0 , upper = 1, method = "pcubature", muf = muf1, est = gpsmooth, est_arg = fet.muf1.m52)$integral)
+source('../code/matern32.R')
+cubint <- cbind(cubint,
+cubintegrate(residfunc, lower = 0 , upper = 1, method = "pcubature", muf = muf1, est = gpsmooth, est_arg = fet.muf1.m32)$integral)
+cubint <- cbind(cubint,
+cubintegrate(residfunc, lower = 0 , upper = 1, method = "pcubature", muf = muf1, est = fpcamu, est_arg = fpca1)$integral)
+```
+
+```{r}
+#rint <- cbind(rint, NA)
+intresult <- round(rbind(rint, cubint), 4)
+intresult <- cbind(c('Base R', 'Cubature'), intresult)
+colnames(intresult) <- c('Method','Gaussian', 'Laplace', 'Matern_5/2', 'Matern 3/2', 'PACE')
+intresult %>% kable() %>% kable_styling()
+```
+
+Clearly, there are discrepencies in the integration result. We implement a simple Monte Carolo integration using uniform distribution. We generate $N$ time points from uniform(-1,1) and approximate the integral.
+
+$$
+\int_a^b f(t) dt = (b-a) \frac{1}{N} \sum f(t_i).  
+$$
+
+```{r}
+source('../code/RBF.R')
+ise.muf1 <- vrmse(n, method = 'mc', muf = muf1, est = gpsmooth, est_arg = fet.muf1.rbf) 
+source('../code/laplace.R')
+ise.muf1 <- cbind(ise.muf1, vrmse(n, method = 'mc', muf = muf1, est = gpsmooth, est_arg = fet.muf1.lap)) 
+source('../code/matern52.R')
+ise.muf1 <- cbind(ise.muf1, vrmse(n, method = 'mc', muf = muf1, est = gpsmooth, est_arg = fet.muf1.m52)) 
+source('../code/matern32.R')
+ise.muf1 <- cbind(ise.muf1, vrmse(n, method = 'mc', muf = muf1, est = gpsmooth, est_arg = fet.muf1.m32)) 
+
+ise.muf1 <- cbind(ise.muf1, vrmse(n, method = 'mc', muf = muf1, est = fpcamu, est_arg = fpca1)) 
+ise.muf1 <- as.data.frame(ise.muf1)
+```
+
+
+```{r}
+names(ise.muf1) <- kername
+ise.muf1 <-cbind(n, ise.muf1)
+ise.muf1 %>% kable() %>% kable_styling()
+```
+
+```{r}
+plot(n, ise.muf1[,2], col = 1, pch = 16, ylim = c(min(ise.muf1[,-1]), max(ise.muf1[,-1])), type = 'l', 
+     xlab = 'Grid size', ylab = 'ISE', lwd = 3, main = 'ISE')
+for (i in 3:6) {
+  lines(n, ise.muf1[,i], col = i-1, pch = 16, lwd = 3)
+}
+legend('bottom', c('Gaussian', 'Laplace', 'Matern_5/2', 'Matern 3/2', 'PACE'), lty = 1, col = 1:5, bty = 'n', horiz = T)
+```

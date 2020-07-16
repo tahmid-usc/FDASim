@@ -1,0 +1,23 @@
+setup	$	::
+unnamed-chunk-1	library	ls	rm	source
+unnamed-chunk-2	c	curve	muf1	muf2	par	seq
+unnamed-chunk-3	$	c	for	funcgen	lines	muf1	muf2	par	plot
+unnamed-chunk-4	$	==	c	fdagen	for	lines	muf1	muf2	par	plot	rgb	t
+unnamed-chunk-5	fdata1	feature	gpsmooth	seq	source
+unnamed-chunk-6	$	arrange	FPCA	fpcamu	list	Lwls1D	MakeFPCAInputs	time	x
+unnamed-chunk-7	$	c	F	fdata1	fmu1	legend	lines	muf1	plot	points	posMean.muf1.lap	posMean.muf1.m32	posMean.muf1.m52	posMean.muf1.rbf	time
+unnamed-chunk-8	fdata2	feature	gpsmooth	source	time
+unnamed-chunk-9	$	arrange	FPCA	fpcamu	list	Lwls1D	MakeFPCAInputs	time	x
+unnamed-chunk-10	$	c	fdata2	fmu2	legend	lines	muf2	plot	points	posMean.muf2.lap	posMean.muf2.m32	posMean.muf2.m52	posMean.muf2.rbf	T	time
+unnamed-chunk-11	$	ase	c	cbind	fdata1	fet.muf1.lap	fet.muf1.m32	fet.muf1.m52	fet.muf1.rbf	fpca1	fpcamu	gpsmooth	muf1	source	var
+unnamed-chunk-12	$	ase	cbind	fdata2	fet.muf2.lap	fet.muf2.m32	fet.muf2.m52	fet.muf2.rbf	fpca1	fpcamu	gpsmooth	muf2	N	source	var
+unnamed-chunk-13	%>%	c	cbind	colnames<-	kable	kable_styling	kername	rbind	round	sase.muf1	sase.muf2
+unnamed-chunk-14	$	cbind	fdata1	fet.muf1.lap	fet.muf1.m32	fet.muf1.m52	fet.muf1.rbf	fpca1	fpcamu	gpsmooth	integrate	muf1	residfunc	source	var
+unnamed-chunk-15	$	cbind	fdata1	fet.muf2.lap	fet.muf2.m32	fet.muf2.m52	fet.muf2.rbf	fpca1	fpcamu	gpsmooth	integrate	muf2	residfunc	source	var
+unnamed-chunk-16	%>%	c	cbind	colnames<-	kable	kable_styling	kername	rbind	rint.muf1	rint.muf2	round
+unnamed-chunk-17	$	cbind	cubintegrate	fdata1	fet.muf1.lap	fet.muf1.m32	fet.muf1.m52	fet.muf1.rbf	fpca1	fpcamu	gpsmooth	muf1	residfunc	source	var
+unnamed-chunk-18	$	cbind	cubintegrate	fdata1	fet.muf2.lap	fet.muf2.m32	fet.muf2.m52	fet.muf2.rbf	fpca1	fpcamu	gpsmooth	muf2	residfunc	source	var
+unnamed-chunk-19	%>%	c	cbind	colnames<-	cubint.muf1	cubint.muf2	kable	kable_styling	kername	rbind	round
+unnamed-chunk-20	$	ase	cbind	fdata1	fet.muf1.lap	fet.muf1.m32	fet.muf1.m52	fet.muf1.rbf	fpca1	fpcamu	gpsmooth	muf1	N	source	var
+unnamed-chunk-21	$	ase	cbind	fdata1	fet.muf2.lap	fet.muf2.m32	fet.muf2.m52	fet.muf2.rbf	fpca1	fpcamu	gpsmooth	muf2	N	source	var
+unnamed-chunk-22	%>%	c	cbind	colnames<-	ise.muf1	ise.muf2	kable	kable_styling	kername	rbind	round

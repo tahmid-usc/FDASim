@@ -25,7 +25,7 @@ curve(t,mu, 0, 1)
 
 # Plot mean function
 
-curve(muf1, -1, 1, lwd = 2)
+curve(muf1, 0, 1, lwd = 2)
 
 #--------------------------------------------------
 

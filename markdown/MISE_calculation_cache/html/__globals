@@ -2,17 +2,23 @@ unnamed-chunk-1	library	ls	rm	source
 unnamed-chunk-2	c	curve	muf1	muf2	par	seq
 unnamed-chunk-3	$	c	for	funcgen	lines	muf1	muf2	par	plot
 unnamed-chunk-4	$	==	c	fdagen	for	lines	muf1	muf2	par	plot	rgb	t
-unnamed-chunk-5	c	fdagen	muf1	seq	source
+unnamed-chunk-5	seq
 unnamed-chunk-6	fdata1	feature	gpsmooth	source	time
 unnamed-chunk-7	$	arrange	FPCA	fpcamu	list	Lwls1D	MakeFPCAInputs	time	x
 unnamed-chunk-8	$	c	fdata1	fmu1	legend	lines	muf1	plot	points	posMean.muf1.lap	posMean.muf1.m32	posMean.muf1.m52	posMean.muf1.rbf	T	time
-unnamed-chunk-9	c	fdagen	muf2	source
+unnamed-chunk-9	
 unnamed-chunk-10	fdata2	feature	gpsmooth	source	time
 unnamed-chunk-11	$	arrange	FPCA	fpcamu	list	Lwls1D	MakeFPCAInputs	time	x
 unnamed-chunk-12	$	c	fdata2	fmu2	legend	lines	muf2	plot	points	posMean.muf2.lap	posMean.muf2.m32	posMean.muf2.m52	posMean.muf2.rbf	T	time
 unnamed-chunk-13	as.data.frame	c	cbind	fet.muf1.lap	fet.muf1.m32	fet.muf1.m52	fet.muf1.rbf	fpca1	fpcamu	gpsmooth	muf1	source	vrmse
-unnamed-chunk-14	%>%	c	cbind	kable	kable_styling	n	names<-
+unnamed-chunk-14	%>%	cbind	kable	kable_styling	kername	n	names<-
 unnamed-chunk-15	c	for	legend	lines	max	min	mse.muf1	n	plot	T
-unnamed-chunk-16	as.data.frame	c	cbind	fet.muf2.lap	fet.muf2.m32	fet.muf2.m52	fet.muf2.rbf	fpca2	fpcamu	gpsmooth	muf2	source	vrmse
-unnamed-chunk-17	%>%	c	cbind	kable	kable_styling	n	names<-
+unnamed-chunk-16	as.data.frame	cbind	fet.muf2.lap	fet.muf2.m32	fet.muf2.m52	fet.muf2.rbf	fpca2	fpcamu	gpsmooth	muf2	n	source	vrmse
+unnamed-chunk-17	%>%	cbind	kable	kable_styling	kername	n	names<-
 unnamed-chunk-18	c	for	legend	lines	max	min	mse.muf2	n	plot	T
+unnamed-chunk-19	$	cbind	fet.muf1.lap	fet.muf1.m32	fet.muf1.m52	fet.muf1.rbf	fpca1	fpcamu	gpsmooth	integrate	muf1	residfunc	source
+unnamed-chunk-20	$	cbind	cubintegrate	fet.muf1.lap	fet.muf1.m32	fet.muf1.m52	fet.muf1.rbf	fpca1	fpcamu	gpsmooth	muf1	residfunc	source
+unnamed-chunk-21	%>%	c	cbind	colnames<-	cubint	kable	kable_styling	rbind	rint	round
+unnamed-chunk-22	as.data.frame	cbind	fet.muf1.lap	fet.muf1.m32	fet.muf1.m52	fet.muf1.rbf	fpca1	fpcamu	gpsmooth	muf1	n	source	vrmse
+unnamed-chunk-23	%>%	cbind	kable	kable_styling	kername	n	names<-
+unnamed-chunk-24	c	for	ise.muf1	legend	lines	max	min	n	plot	T

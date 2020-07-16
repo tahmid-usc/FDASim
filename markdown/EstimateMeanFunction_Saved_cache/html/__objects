@@ -1,0 +1,26 @@
+setup	
+unnamed-chunk-1	ase	BDmat	covmat	fdagen	feature	fit.gp	fpcamu	funcgen	gpsmooth	Hyper	Jmat	ker	muf1	muf2	residfunc	testcov	testmat
+unnamed-chunk-2	t
+unnamed-chunk-3	func	i	.Random.seed
+unnamed-chunk-4	ase.muf1	ase.muf2	covf	covfTest	CUBINT	cubint.muf1	cubint.muf2	fdata1	fdata2	fet.muf1.lap	fet.muf1.m32	fet.muf1.m52	fet.muf1.rbf	fet.muf2.lap	fet.muf2.m32	fet.muf2.m52	fet.muf2.rbf	fmu1	fmu2	fpca.dt1	fpca.dt2	fpca1	fpca2	ise.muf1	ise.muf2	kername	MC	muf1.fpca	muf2.fpca	N	posMean.muf1.lap	posMean.muf1.m32	posMean.muf1.m52	posMean.muf1.rbf	posMean.muf2.lap	posMean.muf2.m32	posMean.muf2.m52	posMean.muf2.rbf	RINT	rint.muf1	rint.muf2	SASE	sase.muf1	sase.muf2	time
+unnamed-chunk-5	i
+unnamed-chunk-6	
+unnamed-chunk-7	
+unnamed-chunk-8	
+unnamed-chunk-9	
+unnamed-chunk-10	
+unnamed-chunk-11	
+unnamed-chunk-12	
+unnamed-chunk-13	
+unnamed-chunk-14	SASE	.EstimateMeanFunction_Saved_cache/html/unnamed-chunk-14_76624d38c45c694fe27e2aab07ccd2fe_meta
+unnamed-chunk-15	
+unnamed-chunk-16	
+unnamed-chunk-17	RINT	.EstimateMeanFunction_Saved_cache/html/unnamed-chunk-17_540e964b3a9fc2a84cd9f41b72a8f938_meta
+unnamed-chunk-18	
+unnamed-chunk-19	
+unnamed-chunk-20	CUBINT	.EstimateMeanFunction_Saved_cache/html/unnamed-chunk-20_acf6b6f19d92469a47e30079ac4a5e66_meta
+unnamed-chunk-21	
+unnamed-chunk-22	
+unnamed-chunk-23	MC	.EstimateMeanFunction_Saved_cache/html/unnamed-chunk-23_39d0e5949dc162b72b94a7dfc6cb3987_meta
+unnamed-chunk-24	Result	.EstimateMeanFunction_Saved_cache/html/unnamed-chunk-24_b1690e26e449983834b41356a7ec975e_meta
+unnamed-chunk-25	Result	.EstimateMeanFunction_Saved_cache/html/unnamed-chunk-25_cdc63eb815dcaf079a60caa25abac17f_meta

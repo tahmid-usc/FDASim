@@ -152,10 +152,10 @@ funcgen <- function(muf, theta) {
 
 # RMSE
 
-rmse <- function(n, method, muf, est, est_arg) {
+ase <- function(n, method, muf, est, est_arg) {
   if(method == 'mc') time <- runif(n, 0, 1) else time <- seq(0, 1, length.out = n)
-  rmse <-  sqrt(mean((residfunc(time, muf, est, est_arg))))
-  return(rmse)
+  ase <-  mean((residfunc(time, muf, est, est_arg)))
+  return(ase)
 }
 
-vrmse <- Vectorize(rmse, vectorize.args = 'n')
+#vase <- Vectorize(ase, vectorize.args = 'n')
