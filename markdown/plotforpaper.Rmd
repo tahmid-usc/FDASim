@@ -1,0 +1,515 @@
+---
+title: "Plot results"
+author: "Tahmidul Islam"
+date: "7/13/2020"
+output: 
+ pdf_document:  
+  fig_width: 14 
+  fig_height: 6
+ html_document:
+  fig_width: 14 
+  fig_height: 6
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include = FALSE, echo = FALSE, warning = FALSE, message = FALSE, error = TRUE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE, error = TRUE)
+```
+
+```{r}
+getwd()
+```
+
+```{r}
+#loading packages
+rm(list = ls())
+library(MASS)
+library(kernlab)
+library(mvtnorm)
+library(Matrix)
+library(optimx)
+library(fdapace)
+library(dplyr)
+library(cubature)
+library(smoothmest)
+library(kableExtra)
+library(colorspace)
+
+source('../code/RBF.R')
+source('../code/functionsTest.R')
+#source('../code/functionsNew.R')
+#source('code/laplace.R')
+#source('code/matern52.R')
+#source('code/matern32.R')
+source('../code/multistart.R')
+```
+
+We propose two new mean functions to be used for functional data simulation. One is based on normal density functions with different location and scale parameters. The other is based on Laplace (double exponential) distribution with similar manipulation. These two mean functions contain spikes of several degrees (depending on the scale parameter). The Laplace distribution outputs non-differentiable regions at the spikes.
+Proposed new mean function:
+$$
+\mu_1(t) = \ N(.2, .05) + \ N(.3, .03) + \ N(.8, .02); \ t \in (0,1).    
+$$
+$$
+\mu_2(t) = \ dexp(.2, .05) + \ dexp(.3, .03) + \ dexp(.8, .02); \ t \in (0,1).     
+$$
+Where $N(a,b)$ and $dexp(a,b)$ are the density function of a normal distribution and a Laplace distribution respectively with location parameter $a$ and scale parameter $b$.
+
+Let us plot the mean funtions.
+
+```{r}
+t <- seq(0, 1, length.out = 100)
+par(mfrow = c(1,2))
+curve(muf1, 0, 1, lwd = 2, main = 'Mix of normal')
+curve(muf2, 0, 1, lwd = 2, main = 'Mix of double exponential')
+```
+
+Now simulate some random functions using the mean functions as the prior mean in the Gaussian process with Gaussian covariance function.
+
+```{r}
+
+func <- funcgen(muf1, theta = c(1,5))
+
+par(mfrow = c(1,2))
+plot(func$x, func$y, type = 'l', lwd = 3, 
+     main = 'Mix of normal', xlab = 'Time', ylab = 'Y',
+     cex.main = 1.5, cex.lab = 1.5, ylim=c(-3, 27))
+for(i in 1:10) {
+  func <- funcgen(muf1, theta = c(1,5))
+  lines(func$x, func$y, lwd = 3)
+}
+
+func <- funcgen(muf2, theta = c(1,5))
+plot(func$x, func$y, type = 'l', lwd = 3, 
+     main = 'Mix of double exponential', xlab = 'Time', ylab = 'Y',
+     cex.main = 1.5, cex.lab = 1.5, ylim=c(-3, 27))
+for(i in 1:10) {
+  func <- funcgen(muf2, theta = c(1,5))
+  lines(func$x, func$y, lwd = 3)
+}
+
+```
+
+
+Now we generate sparse functional data which are actually observed in practice. To introduce sparsity, first we sample any integer $n_t$ between 2 to 10. This is the number of time points each function will be observed on. Further we sample $n_t$ time points from a uniform (0, 1). 
+
+```{r}
+#load previous results
+load("E:/FDASim/markdown/.RData")
+```
+
+
+```{r}
+#fdata1 <- fdagen(n = 20, maxt = 10, muf = muf1, theta = c(1, 5, 2))
+
+#par(mfrow = c(1,2))
+
+plot(1, type="n", xlim=c(0, 1), ylim=c(-10, 28), 
+     main = 'Mix of normal', xlab = 'Time', ylab = 'Y',
+     cex.main = 1.5, cex.lab = 1.5)
+for(i in 1:20){
+  lines(fdata1[fdata1$id == i,1], fdata1[fdata1$id == i,2], type = 'b', lwd = 2, col = rgb(0,0,0,.5))
+}
+lines(t, muf1(t), type = 'l', lwd = 4)
+
+#fdata2 <- fdagen(n = 10, maxt = 10, muf = muf2, theta = c(1, 5, 2))
+
+plot(1, type="n", xlim=c(0, 1), ylim=c(-10, 28), 
+     main = 'Mix of double exponential', xlab = 'Time', ylab = 'Y',
+     cex.main = 1.5, cex.lab = 1.5)
+for(i in 1:20){
+  lines(fdata2[fdata2$id == i,1], fdata2[fdata2$id == i,2], type = 'b', lwd = 2, col = rgb(0,0,0,.5))
+}
+lines(t, muf2(t), type = 'l', lwd = 4)
+```
+
+We will fit our GP based model to the generated data and compare with the fit with the PACE (Yao, Mueller, and Wang (2005)) method based on Functional Principal Component Analysis (FPCA), a key technique for functional data analysis, for sparsely or densely sampled random trajectories and time courses, via the Principal Analysis by Conditional Estimation (PACE) algorithm.
+
+## Mix of normal density mean function
+
+```{r, results = 'hide'}
+# GP fit with all available kernels
+# 
+# time <- seq(0, 1, length.out = 100)
+# 
+# #Gaussian kernel
+# source('../code/RBF.R')
+# fet.muf1.rbf <- feature(fdata1)
+# posMean.muf1.rbf <- gpsmooth(time, fet.muf1.rbf)
+# 
+# #Laplace kernel
+# 
+# source('../code/laplace.R')
+# fet.muf1.lap <- feature(fdata1)
+# posMean.muf1.lap <- gpsmooth(time, fet.muf1.lap)
+# 
+# # Mtern 5/2 kernel
+# 
+# source('../code/matern52.R')
+# fet.muf1.m52 <- feature(fdata1)
+# posMean.muf1.m52 <- gpsmooth(time, fet.muf1.m52)
+# 
+# # Matern 3/2
+# 
+# source('../code/matern32.R')
+# fet.muf1.m32 <- feature(fdata1)
+# posMean.muf1.m32 <- gpsmooth(time, fet.muf1.m32)
+```
+
+```{r, results = 'hide'}
+# PACE
+# fpca.dt1 <- MakeFPCAInputs(IDs = fdata1$id, fdata1$x, fdata1$y, sort = FALSE)
+# fpca1 <- FPCA(fpca.dt1$Ly, fpca.dt1$Lt, optns = list(dataType = 'Sparse'))
+# 
+# fdata1 <- arrange(fdata1, x)
+# muf1.fpca <- Lwls1D(fpca1$bwMu, xin = fdata1$x, yin = fdata1$y, xout = time, kernel_type = 'gauss')
+# 
+# fmu1 <- fpcamu(time, fpca1)
+```
+
+We can inspect the fit of the mean function estimation by GP based method and compare with PACE. For GP method, we have used four different covariance kernels: Gaussian (RBF), Laplace, Matern 5/2 and Matern 3/2.
+
+```{r}
+plot(time, muf1(time), type = 'l', lwd = 3, ylim = c(-5,28), xlab = 'Time', ylab = 'Y', col = 1, main = 'Mix of normal densities')
+points(fdata1$x, fdata1$y, pch = 16, cex = .8)
+lines(time, posMean.muf1.rbf, type = 'l', lwd = 3, col = 2)
+lines(time, posMean.muf1.lap, type = 'l', lwd = 3, col = 3)
+lines(time, posMean.muf1.m52, type = 'l', lwd = 3, col = 4)
+lines(time, posMean.muf1.m32, type = 'l', lwd = 3, col = 5)
+lines(time, fmu1, lwd = 3, col = 6)
+legend("topright", c("True", "Gaussian", 'Laplace', 'Matern 5/2', 'Matern 3/2', "PACE"), col = 1:6, lty = 1, bty = 'n', horiz = F, lwd = 3)
+```
+
+We can repeat this procedure for the mix of double exponential density mean function.
+
+```{r, results = 'hide'}
+# # GP fit with all available kernels
+# 
+# #Gaussian kernel
+# source('../code/RBF.R')
+# fet.muf2.rbf <- feature(fdata2)
+# posMean.muf2.rbf <- gpsmooth(time, fet.muf2.rbf)
+# 
+# #Laplace kernel
+# 
+# source('../code/laplace.R')
+# fet.muf2.lap <- feature(fdata2)
+# posMean.muf2.lap <- gpsmooth(time, fet.muf2.lap)
+# 
+# # Mtern 5/2 kernel
+# 
+# source('../code/matern52.R')
+# fet.muf2.m52 <- feature(fdata2)
+# posMean.muf2.m52 <- gpsmooth(time, fet.muf2.m52)
+# 
+# # Matern 3/2
+# 
+# source('../code/matern32.R')
+# fet.muf2.m32 <- feature(fdata2)
+# posMean.muf2.m32 <- gpsmooth(time, fet.muf2.m32)
+```
+
+```{r, results = 'hide'}
+# PACE
+# fpca.dt2 <- MakeFPCAInputs(IDs = fdata2$id, fdata2$x, fdata2$y, sort = FALSE)
+# fpca2 <- FPCA(fpca.dt2$Ly, fpca.dt2$Lt, optns = list(dataType = 'Sparse'))
+# 
+# fdata2 <- arrange(fdata2, x)
+# muf2.fpca <- Lwls1D(fpca2$bwMu, xin = fdata2$x, yin = fdata2$y, xout = time, kernel_type = 'gauss')
+# 
+# fmu2 <- fpcamu(time, fpca2)
+```
+
+
+```{r}
+plot(time, fmu2, type = 'l', lwd = 3, ylim = c(-5,28), xlab = 'Time', ylab = 'Y', col = 6, main = 'Mix of double exponential densities')
+points(fdata2$x, fdata2$y, pch = 16, cex = .8)
+lines(time, posMean.muf2.rbf, type = 'l', lwd = 3, col = 2)
+lines(time, posMean.muf2.lap, type = 'l', lwd = 3, col = 3)
+lines(time, posMean.muf2.m52, type = 'l', lwd = 3, col = 4)
+lines(time, posMean.muf2.m32, type = 'l', lwd = 3, col = 5)
+lines(time, muf2(time), lwd = 3, col = 1)
+legend("top", c("True", "Gaussian", 'Laplace', 'Matern 5/2', 'Matern 3/2', "PACE"), col = 1:6, lty = 1, bty = 'n', horiz = T, lwd = 3)
+```
+
+
+## Error in mean function estimation
+
+### Standardized Average Squared Error (SASE)
+
+We want to measure the goodness of fit of our GP based method and compare the performance with PACE. The basic error metric we can use for mean function estimation is the Standardized Average Squared Error (SASE). SASE is calculated by taking a grid of equally spaced time points, computing the mean of the squared estimation errors. It is then standardized by the variance of the responses. Since we know the true mean function, we can compute the following:
+$$
+\text{ASE} =  \frac{1}{N} \sum_{i = 1}^N \Big( \hat \mu(t_i) - \mu(t_i) \Big)^2 .\\
+$$
+$$
+SASE = ASE / var(y)
+$$
+Here the time points $t_i$'s form a fixed grid of points over the support of the function. Here we can choose $10000$ time points from the interval $(0,1)$ and compute the SASE. 
+
+
+
+```{r, results = 'hide'}
+### Mix of normal densities
+# N <- 10000
+# kername <- c('Gaussian', 'Laplace', 'Matern_5/2', 'Matern 3/2', 'PACE')
+# 
+# source('../code/RBF.R')
+# ase.muf1 <- ase(N, method = 'unif', muf = muf1, est = gpsmooth, est_arg = fet.muf1.rbf)
+# 
+# source('../code/laplace.R')
+# ase.muf1 <- cbind(ase.muf1, ase(N, method = 'unif', muf = muf1, est = gpsmooth, est_arg = fet.muf1.lap))
+# 
+# source('../code/matern52.R')
+# ase.muf1 <- cbind(ase.muf1, ase(N, method = 'unif', muf = muf1, est = gpsmooth, est_arg = fet.muf1.m52))
+# 
+# source('../code/matern32.R')
+# ase.muf1 <- cbind(ase.muf1, ase(N, method = 'unif', muf = muf1, est = gpsmooth, est_arg = fet.muf1.m32))
+# 
+# ase.muf1 <- cbind(ase.muf1, ase(N, method = 'unif', muf = muf1, est = fpcamu, est_arg = fpca1))
+# 
+# sase.muf1 <- ase.muf1/var(fdata1$y)
+```
+
+
+```{r, results = 'hide'}
+### Mix of double exponential densities
+
+# source('../code/RBF.R')
+# ase.muf2 <- ase(N, method = 'unif', muf = muf2, est = gpsmooth, est_arg = fet.muf2.rbf)
+# 
+# source('../code/laplace.R')
+# ase.muf2 <- cbind(ase.muf2, ase(N, method = 'unif', muf = muf2, est = gpsmooth, est_arg = fet.muf2.lap))
+# 
+# source('../code/matern52.R')
+# ase.muf2 <- cbind(ase.muf2, ase(N, method = 'unif', muf = muf2, est = gpsmooth, est_arg = fet.muf2.m52))
+# 
+# source('../code/matern32.R')
+# ase.muf2 <- cbind(ase.muf2, ase(N, method = 'unif', muf = muf2, est = gpsmooth, est_arg = fet.muf2.m32))
+# 
+# ase.muf2 <- cbind(ase.muf2, ase(N, method = 'unif', muf = muf2, est = fpcamu, est_arg = fpca1))
+# 
+# sase.muf2 <- ase.muf2/var(fdata2$y)
+```
+
+```{r}
+SASE <- round(rbind(sase.muf1, sase.muf2), 4)  
+SASE <- cbind(c('Mix of normal', 'Mix of double exponential'), SASE)
+colnames(SASE) <- c('Method', kername)
+SASE %>% kable() %>% kable_styling()
+```
+
+### Mean Integrated Squared Error (MISE)
+
+The mean integrated squared error (MISE) is defined by
+$$
+E || \hat f - f ||^2 = E \int \big( \hat f(t) - f(t) \big)^2 dt.
+$$
+
+Where $f$ is the true function. We first compute the integrated squared error (ISE). To do that, we use numerical integration of the squared error function over $(0,1)$. The ISE is then standardized using the variance of the response.
+
+```{r, results = 'hide'}
+
+# Compute error mix normal
+# source('../code/RBF.R')
+# rint.muf1 <- integrate(residfunc, lower = 0 , upper = 1, muf = muf1, est = gpsmooth, 
+#           est_arg = fet.muf1.rbf, subdivisions = 10000)$value
+# source('../code/laplace.R')
+# rint.muf1 <- cbind(rint.muf1,
+# integrate(residfunc, lower = 0 , upper = 1, muf = muf1, est = gpsmooth, 
+#           est_arg = fet.muf1.lap, subdivisions = 10000)$value)
+# source('../code/matern52.R')
+# rint.muf1 <- cbind(rint.muf1,
+# integrate(residfunc, lower = 0 , upper = 1, muf = muf1, est = gpsmooth, 
+#           est_arg = fet.muf1.m52, subdivisions = 10000)$value)
+# source('../code/matern32.R')
+# rint.muf1 <- cbind(rint.muf1,
+# integrate(residfunc, lower = 0 , upper = 1, muf = muf1, est = gpsmooth, 
+#           est_arg = fet.muf1.m32, subdivisions = 10000)$value)
+# rint.muf1 <- cbind(rint.muf1,
+# integrate(residfunc, lower = 0, upper = 1, muf = muf1, est = fpcamu, 
+#           est_arg = fpca1, subdivisions = 10000)$value)
+# # standardizing
+# rint.muf1 <- rint.muf1/var(fdata1$y)
+```
+
+```{r, results = 'hide'}
+# Compute error mix double exponential
+# source('../code/RBF.R')
+# rint.muf2 <- integrate(residfunc, lower = 0 , upper = 1, muf = muf2, est = gpsmooth, 
+#           est_arg = fet.muf2.rbf, subdivisions = 10000)$value
+# source('../code/laplace.R')
+# rint.muf2 <- cbind(rint.muf2,
+# integrate(residfunc, lower = 0 , upper = 1, muf = muf2, est = gpsmooth, 
+#           est_arg = fet.muf2.lap, subdivisions = 10000)$value)
+# source('../code/matern52.R')
+# rint.muf2 <- cbind(rint.muf2,
+# integrate(residfunc, lower = 0 , upper = 1, muf = muf2, est = gpsmooth, 
+#           est_arg = fet.muf2.m52, subdivisions = 10000)$value)
+# source('../code/matern32.R')
+# rint.muf2 <- cbind(rint.muf2,
+# integrate(residfunc, lower = 0 , upper = 1, muf = muf2, est = gpsmooth, 
+#           est_arg = fet.muf2.m32, subdivisions = 10000)$value)
+# rint.muf2 <- cbind(rint.muf2,
+# integrate(residfunc, lower = 0, upper = 1, muf = muf2, est = fpcamu, 
+#           est_arg = fpca1, subdivisions = 10000)$value)
+# 
+# # standardizing
+# rint.muf2 <- rint.muf2/var(fdata1$y)
+```
+
+```{r}
+RINT <- round(rbind(rint.muf1, rint.muf2), 4)  
+RINT <- cbind(c('Mix of normal', 'Mix of double exponential'), RINT)
+colnames(RINT) <- c('Method', kername)
+RINT %>% kable() %>% kable_styling()
+```
+
+Since R's base code for integration using adaptive quadrature sometimes results in error, we use a package called 'cubature'. This package uses adative and monte-carlo integration. We show results for the mix of normal density mean function.
+
+```{r, results = 'hide'}
+# source('../code/RBF.R')
+# cubint.muf1 <- cubintegrate(residfunc, lower = 0 , upper = 1, method = "pcubature", muf = muf1, est = gpsmooth, est_arg = fet.muf1.rbf)$integral
+# source('../code/laplace.R')
+# cubint.muf1 <- cbind(cubint.muf1,
+# cubintegrate(residfunc, lower = 0 , upper = 1, method = "pcubature", muf = muf1, est = gpsmooth, est_arg = fet.muf1.lap)$integral)
+# source('../code/matern52.R')
+# cubint.muf1 <- cbind(cubint.muf1,
+# cubintegrate(residfunc, lower = 0 , upper = 1, method = "pcubature", muf = muf1, est = gpsmooth, est_arg = fet.muf1.m52)$integral)
+# source('../code/matern32.R')
+# cubint.muf1 <- cbind(cubint.muf1,
+# cubintegrate(residfunc, lower = 0 , upper = 1, method = "pcubature", muf = muf1, est = gpsmooth, est_arg = fet.muf1.m32)$integral)
+# cubint.muf1 <- cbind(cubint.muf1,
+# cubintegrate(residfunc, lower = 0 , upper = 1, method = "pcubature", muf = muf1, est = fpcamu, est_arg = fpca1)$integral)
+# 
+# #standardize
+# cubint.muf1 <- cubint.muf1/var(fdata1$y)
+```
+
+```{r, results = 'hide'}
+# source('../code/RBF.R')
+# cubint.muf2 <- cubintegrate(residfunc, lower = 0 , upper = 1, method = "pcubature", muf = muf2, est = gpsmooth, est_arg = fet.muf2.rbf)$integral
+# source('../code/laplace.R')
+# cubint.muf2 <- cbind(cubint.muf2,
+# cubintegrate(residfunc, lower = 0 , upper = 1, method = "pcubature", muf = muf2, est = gpsmooth, est_arg = fet.muf2.lap)$integral)
+# source('../code/matern52.R')
+# cubint.muf2 <- cbind(cubint.muf2,
+# cubintegrate(residfunc, lower = 0 , upper = 1, method = "pcubature", muf = muf2, est = gpsmooth, est_arg = fet.muf2.m52)$integral)
+# source('../code/matern32.R')
+# cubint.muf2 <- cbind(cubint.muf2,
+# cubintegrate(residfunc, lower = 0 , upper = 1, method = "pcubature", muf = muf2, est = gpsmooth, est_arg = fet.muf2.m32)$integral)
+# cubint.muf2 <- cbind(cubint.muf2,
+# cubintegrate(residfunc, lower = 0 , upper = 1, method = "pcubature", muf = muf2, est = fpcamu, est_arg = fpca1)$integral)
+# 
+# #standardize
+# cubint.muf2 <- cubint.muf2/var(fdata1$y)
+```
+
+```{r}
+CUBINT <- round(rbind(cubint.muf1, cubint.muf2), 4)  
+CUBINT <- cbind(c('ISE: Mix of normal', 'ISE: Mix of double exponential'), CUBINT)
+colnames(CUBINT) <- c('Method', kername)
+CUBINT %>% kable() %>% kable_styling()
+```
+We can also approximate the integration by Monte Carlo method. The simplest version would be to use the uniform distribution. We generate $N = 10000$ time points from uniform(0,1) and approximate the integral.
+
+$$
+\int_a^b f(t) dt = (b-a) \frac{1}{N} \sum f(t_i).  
+$$
+
+```{r, results = 'hide'}
+# Mix normal
+
+# source('../code/RBF.R')
+# ise.muf1 <- ase(N, method = 'mc', muf = muf1, est = gpsmooth, est_arg = fet.muf1.rbf) 
+# source('../code/laplace.R')
+# ise.muf1 <- cbind(ise.muf1, ase(N, method = 'mc', muf = muf1, est = gpsmooth, est_arg = fet.muf1.lap)) 
+# source('../code/matern52.R')
+# ise.muf1 <- cbind(ise.muf1, ase(N, method = 'mc', muf = muf1, est = gpsmooth, est_arg = fet.muf1.m52)) 
+# source('../code/matern32.R')
+# ise.muf1 <- cbind(ise.muf1, ase(N, method = 'mc', muf = muf1, est = gpsmooth, est_arg = fet.muf1.m32)) 
+# 
+# ise.muf1 <- cbind(ise.muf1, ase(N, method = 'mc', muf = muf1, est = fpcamu, est_arg = fpca1)) 
+# 
+# #standardizing
+# ise.muf1 <- ise.muf1 / var(fdata1$y)
+```
+
+```{r, results = 'hide'}
+#Mix double exponential
+# 
+# source('../code/RBF.R')
+# ise.muf2 <- ase(N, method = 'mc', muf = muf2, est = gpsmooth, est_arg = fet.muf2.rbf) 
+# source('../code/laplace.R')
+# ise.muf2 <- cbind(ise.muf2, ase(N, method = 'mc', muf = muf2, est = gpsmooth, est_arg = fet.muf2.lap)) 
+# source('../code/matern52.R')
+# ise.muf2 <- cbind(ise.muf2, ase(N, method = 'mc', muf = muf2, est = gpsmooth, est_arg = fet.muf2.m52)) 
+# source('../code/matern32.R')
+# ise.muf2 <- cbind(ise.muf2, ase(N, method = 'mc', muf = muf2, est = gpsmooth, est_arg = fet.muf2.m32)) 
+# 
+# ise.muf2 <- cbind(ise.muf2, ase(N, method = 'mc', muf = muf2, est = fpcamu, est_arg = fpca1)) 
+# 
+# #standardizing
+# ise.muf2 <- ise.muf2 / var(fdata1$y)
+```
+
+```{r}
+MC <- round(rbind(ise.muf1, ise.muf2), 4)  
+MC <- cbind(c('ISE: Mix of normal', 'ISE: Mix of double exponential'), MC)
+colnames(MC) <- c('Method', kername)
+MC %>% kable() %>% kable_styling()
+```
+
+
+
+## Summary of error calculation
+
+### Mix normal mean function
+```{r}
+Result <- round(rbind(sase.muf1, rint.muf1, cubint.muf1, ise.muf1), 4)  
+Result <- cbind(c('SASE', 'ISE (R base function)','ISE (Cubature package)', 'ISE (MC)'), Result)
+colnames(Result) <- c('Method', kername)
+Result %>% kable() %>% kable_styling()
+```
+
+### Mix double exponential mean function
+```{r}
+Result <- round(rbind(sase.muf2, rint.muf2, cubint.muf2, ise.muf2), 4)  
+Result <- cbind(c('SASE', 'ISE (R base function)','ISE (Cubature package)', 'ISE (MC)'), Result)
+colnames(Result) <- c('Method', kername)
+Result %>% kable() %>% kable_styling()
+```
+
+## Effect of Sample Size
+
+We wish to investigate how these error measurement changes if we change our sample size, i.e. the number of observed curves in the dataset. For this purpose, we vary the sample size $n = 10, 20, 30, 40$ and $50$. For each of these sample sizes, we generate data using the first mean function and calculate the SASE, ISE based on Cubature package and ISE based on MC method. We plot the error metrics as a function of the sample sizes. 
+
+```{r}
+load('../varySamMat.Rdata')
+```
+
+```{r}
+n.vec <- c(10,20,30,40, 50)
+
+plot(n.vec, resultMat[seq(1, 13, by = 3),3], 
+     type = 'b', xlab = 'Sample size', ylab = 'SASE', cex.lab = 1.5, lwd = 3, 
+     ylim = c(0, .5), col = 2)
+for (i in 4:7) lines(n.vec, resultMat[seq(1, 13, by = 3),i], lwd = 3, col = i - 1)
+legend('topright', c('Gaussian', 'Laplace', 'Matern 5/2', 'Matern 3/2', 'PACE'), 
+       lty = 1, bty = 'n', col = 2:6, lwd = 3)
+
+plot(n.vec, resultMat[seq(2, 14, by = 3),3], 
+     type = 'b', xlab = 'Sample size', ylab = 'ISE: Cubature', cex.lab = 1.5, lwd = 3, 
+     ylim = c(0, .5), col = 2)
+for (i in 4:7) lines(n.vec, resultMat[seq(2, 14, by = 3),i], lwd = 3, col = i - 1)
+legend('topright', c('Gaussian', 'Laplace', 'Matern 5/2', 'Matern 3/2', 'PACE'), 
+       lty = 1, bty = 'n', col = 2:6, lwd = 3)
+
+
+plot(n.vec, resultMat[seq(3, 15, by = 3),3], 
+     type = 'b', xlab = 'Sample size', ylab = 'ISE: MC', cex.lab = 1.5, lwd = 3, 
+     ylim = c(0, 1.1), col = 2)
+for (i in 4:7) lines(n.vec, resultMat[seq(3, 15, by = 3),i], lwd = 3, col = i - 1)
+legend('topright', c('Gaussian', 'Laplace', 'Matern 5/2', 'Matern 3/2', 'PACE'), 
+       lty = 1, bty = 'n', col = 2:6, lwd = 3)
+```
+

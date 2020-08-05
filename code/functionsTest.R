@@ -96,6 +96,26 @@ gpsmooth <- function(x, trainlist) {
 }
 
 
+
+credible_band <- function(x, trainlist) {
+  
+  kxx <- covmat(trainx = trainlist$trainx, repnum = trainlist$rep, 
+                theta = trainlist$hyper[1:4])
+  kx <-  testcov(x = x, y = trainlist$trainx, theta = trainlist$hyper[1:4])
+  #kinv <-  chol2inv(chol(kxx + trainlist$hyper[5] * diag(trainlist$N)))
+  k <- kx %*% trainlist$kinv
+  pred <- k %*% as.matrix(trainlist$trainy)
+  pred <-  trainlist$ymean + trainlist$ysd * pred
+  
+  n <- length(x)
+  sigma <- testmat(x = x, theta = trainlist$hyper[1:4]) + (trainlist$hyper[5] * diag(n)) - (k %*% t(kx))
+  sigma <- as.matrix(forceSymmetric(sigma))
+  
+  return(list(pred = pred, sigma = sigma))
+  
+}
+
+
 # Posterior mean and cov matrix for test curve
 
 fit.gp <- function(train, testx, testy) {
